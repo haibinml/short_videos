@@ -15,7 +15,7 @@
 
 
 ```
-git clone [hhttps://github.com/jiuhunwl/short_videos.git](https://github.com/jiuhunwl/short_videos.git);
+git clone [https://github.com/jiuhunwl/short_videos.git](https://github.com/jiuhunwl/short_videos.git);
 
 cd short_videos;
 ```
