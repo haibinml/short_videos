@@ -82,8 +82,12 @@ function curl($url, $header = null, $data = null) {
     return $result;
 }
 
-// 使用空合并运算符检查 url 参数
-$url = $_GET['url'] ?? '';
+// 获取请求参数
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $url = $_GET['url']?? null;
+} else {
+    $url = $_POST['url']?? null;
+}
 if (empty($url)) {
     echo output(201, 'url 为空');
 } else {
