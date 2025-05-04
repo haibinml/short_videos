@@ -52,9 +52,9 @@ http://你的服务器地址/xxx.php?url=目标链接;
 ```
 ## 📮 联系我们
 
-**作者**：BugPk
+**作者**：JH-Ahua
 
-**官网**：[https://api.bugpk.com/](https://api.bugpk.com/)
+**接口演示官网**：[https://api.bugpk.com/](https://api.bugpk.com/)
 
 **邮箱**：[admin@bugpk.com](mailto:admin@bugpk.com)
 
