@@ -15,15 +15,15 @@
 
 
 ```
-git clone [https://github.com/jiuhunwl/short_videos.git](https://github.com/jiuhunwl/short_videos.git);
+git clone https://github.com/jiuhunwl/short_videos.git
 
-cd short_videos;
+cd short_videos
 ```
 ### 2. 直接使用（无需安装）
 
 将 `xxx.php` 上传至 Web 服务器，通过 URL 访问：
 ```
-http://你的服务器地址/xxx.php?url=目标链接;
+http://你的服务器地址/xxx.php?url=目标链接
 ```
 ### 请求参数
 | 参数名 | 类型 | 描述 | 是否必填 |
@@ -32,7 +32,7 @@ http://你的服务器地址/xxx.php?url=目标链接;
 
 ### 请求示例
 ```plaintext
-[https://api.bugpk.com/api/xhs?url=http://xhslink.com/a/63LnyN3WImLb](https://api.bugpk.com/api/xhs?url=http://xhslink.com/a/63LnyN3WImLbb)
+https://api.bugpk.com/api/xhs?url=http://xhslink.com/a/63LnyN3WImLb
 ```
 ### 请求结果
 ```plaintext
