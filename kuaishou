@@ -1,0 +1,160 @@
+<?php
+header('content-type:application/json; charset=utf-8');
+// 格式化响应数据的函数
+function formatResponse($code = 200, $msg = '解析成功', $data = [])
+{
+    return [
+        'code' => $code,
+        'msg' => $msg,
+        'data' => $data
+    ];
+}
+
+
+// 获取网页内容并解析 JSON 数据的函数
+function kuaishou($url)
+{
+    // 定义请求头
+    $headers = [
+        'Accept: */*',
+        'Accept-Language: zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+        'Cookie: 写自己的cookie',
+        'Host: www.kuaishou.com',
+        'Origin: https://www.kuaishou.com',
+        'Pragma: no-cache',
+        'Referer: https://www.kuaishou.com/new-reco',
+        'Sec-Ch-Ua: "Microsoft Edge";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
+        'Sec-Ch-Ua-Mobile: ?0',
+        'Sec-Ch-Ua-Platform: "Windows"',
+        'Sec-Fetch-Dest: empty',
+        'Sec-Fetch-Mode: cors',
+        'Sec-Fetch-Site: same-origin',
+        'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0'
+    ];
+    $newurl = ksgetRedirectUrl($url);
+    $pattern = '/short-video\/([^?]+)/';
+
+    preg_match($pattern, $newurl, $matches);
+
+    $id = $matches[1];
+
+    $response = curl($url, $headers);
+    while ($response == null) {
+        $response = curl($url, $headers);
+    }
+    $pattern = '/window\.__APOLLO_STATE__\s*=\s*(.*?)\<\/script>/s';
+    if (preg_match($pattern, $response, $matches)) {
+        // 定义正则表达式匹配函数并移除
+        $functionPattern = '/function\s*\([^)]*\)\s*{[^}]*}/';
+        // ... existing code ...
+        $cleanedApolloState = preg_replace($functionPattern, ':', $matches[1]);
+        // 移除多余的逗号
+        $cleanedApolloState = preg_replace('/,\s*(?=}|])/', '', $cleanedApolloState);
+        // 移除特定字符链
+        $charChainToRemove = ';(:());';
+        $cleanedApolloState = str_replace($charChainToRemove, '', $cleanedApolloState);
+        $cleanedApolloState = json_decode($cleanedApolloState, true);
+        $videoInfo = $cleanedApolloState['defaultClient'] ?? null;
+        $key = "VisionVideoDetailPhoto:{$id}";
+        $json = $videoInfo["{$key}"];
+        $video_url = $json['photoUrl'];
+        if ($video_url) {
+            $arr = array(
+                'code' => 200,
+                'msg' => '解析成功',
+                'data' => array(
+                    'title' => $json['caption'],
+                    'cover' => $json['coverUrl'],
+                    'url' => $video_url,
+                )
+            );
+            return $arr;
+        }
+    }
+}
+function ksgetRedirectUrl($url)
+{
+    $ch = curl_init();
+
+    $ch = initCurlOptions($ch, $url);
+    curl_setopt($ch, CURLOPT_NOBODY, true);
+
+    $result = curl_exec($ch);
+    if ($result === false) {
+        $error = curl_error($ch);
+        curl_close($ch);
+        throw new Exception("Curl error while getting redirect URL: $error");
+    }
+
+    $redirectUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+    curl_close($ch);
+    return $redirectUrl;
+}
+function initCurlOptions($ch, $url, $header = null, $data = null)
+{
+    // 确保 URL 是字符串类型
+    $url = (string)$url;
+
+    // 设置基本的 cURL 选项
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_HEADER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+    curl_setopt($ch, CURLOPT_AUTOREFERER, 1);
+    curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 5000);
+
+    // 设置请求头
+    if (isset($header)) {
+        if (!is_array($header)) {
+            // 记录错误日志，方便调试
+            error_log('initCurlOptions: $header 参数必须是数组类型');
+            return false;
+        }
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+    }
+
+    // 设置 POST 请求
+    if (isset($data)) {
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    }
+
+    // 检查 cURL 选项设置是否成功
+    if (curl_errno($ch)) {
+        // 记录 cURL 错误信息
+        $error = curl_error($ch);
+        error_log("initCurlOptions: cURL 选项设置错误: $error");
+        return false;
+    }
+
+    // 返回 cURL 句柄而非执行结果
+    return $ch;
+}
+function curl($url, $header = null, $data = null)
+{
+    $con = curl_init((string)$url);
+    curl_setopt($con, CURLOPT_HEADER, false);
+    curl_setopt($con, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($con, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($con, CURLOPT_FOLLOWLOCATION, 1);
+    curl_setopt($con, CURLOPT_AUTOREFERER, 1);
+    if (isset($header)) {
+        curl_setopt($con, CURLOPT_HTTPHEADER, $header);
+    }
+    if (isset($data)) {
+        curl_setopt($con, CURLOPT_POST, true);
+        curl_setopt($con, CURLOPT_POSTFIELDS, $data);
+    }
+    curl_setopt($con, CURLOPT_TIMEOUT, 5000);
+    $result = curl_exec($con);
+    return $result;
+}
+// 获取 URL 参数
+$url = $_GET['url'] ?? '';
+if (empty($url)) {
+    echo json_encode(formatResponse(201, '链接不能为空！', []), 480);
+} else {
+    echo json_encode(kuaishou($url),480);
+}
