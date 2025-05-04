@@ -56,6 +56,6 @@ http://你的服务器地址/xxx.php?url=目标链接;
 
 **接口演示官网**：[https://api.bugpk.com/](https://api.bugpk.com/)
 
-**邮箱**：[admin@bugpk.com](mailto:admin@bugpk.com)
+**反馈邮箱**：[admin@bugpk.com](mailto:admin@bugpk.com)
 
 **GitHub**：[https://github.com/jiuhunwl](https://github.com/jiuhunwl)
