@@ -101,49 +101,6 @@ function getRedirectedUrl($url)
     return $finalUrl;
 }
 
-function initCurlOptions($ch, $url, $header = null, $data = null)
-{
-    // 确保 URL 是字符串类型
-    $url = (string)$url;
-
-    // 设置基本的 cURL 选项
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_HEADER, false);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-    curl_setopt($ch, CURLOPT_AUTOREFERER, 1);
-    curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 5000);
-
-    // 设置请求头
-    if (isset($header)) {
-        if (!is_array($header)) {
-            // 记录错误日志，方便调试
-            error_log('initCurlOptions: $header 参数必须是数组类型');
-            return false;
-        }
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-    }
-
-    // 设置 POST 请求
-    if (isset($data)) {
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-    }
-
-    // 检查 cURL 选项设置是否成功
-    if (curl_errno($ch)) {
-        // 记录 cURL 错误信息
-        $error = curl_error($ch);
-        error_log("initCurlOptions: cURL 选项设置错误: $error");
-        return false;
-    }
-
-    // 返回 cURL 句柄而非执行结果
-    return $ch;
-}
-
 function curl($url, $header = null, $data = null)
 {
     $con = curl_init((string)$url);
