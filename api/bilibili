@@ -1,5 +1,12 @@
 <?php
-
+/**
+*@Author: JH-Ahua
+*@CreateTime: 2025/5/8 下午11:40
+*@email: admin@bugpk.com
+*@blog: www.jiuhunwl.cn
+*@Api: api.bugpk.com
+*@tip: bilibili视频解析
+*/
 header('Content-type: text/json;charset=utf-8');
 $urls = isset($_GET['url']) ? $_GET['url'] : '';
 if (empty($urls)){
