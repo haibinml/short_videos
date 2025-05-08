@@ -1,4 +1,12 @@
 <?php
+/**
+*@Author: JH-Ahua
+*@CreateTime: 2025/5/8 下午11:49
+*@email: admin@bugpk.com
+*@blog: www.jiuhunwl.cn
+*@Api: api.bugpk.com
+*@tip: 微博短视频去水印解析
+*/
 header('content-type:application/json; charset=utf-8');
 function weibo($url)
     {
