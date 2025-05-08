@@ -1,4 +1,12 @@
 <?php
+/**
+*@Author: JH-Ahua
+*@CreateTime: 2025/5/8 下午11:49
+*@email: admin@bugpk.com
+*@blog: www.jiuhunwl.cn
+*@Api: api.bugpk.com
+*@tip: 汽水音乐解析
+*/
 header('Content-type: text/json;charset=utf-8');
 $url = (isset($_GET['url'])) ? $_GET['url'] : '';
 $type = (isset($_GET['type'])) ? $_GET['type'] : 'json';
