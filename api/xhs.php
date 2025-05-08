@@ -1,4 +1,12 @@
 <?php
+/**
+*@Author: JH-Ahua
+*@CreateTime: 2025/5/8 下午11:49
+*@email: admin@bugpk.com
+*@blog: www.jiuhunwl.cn
+*@Api: api.bugpk.com
+*@tip: 小红书短视频去水印解析
+*/
 header('Content-type: application/json');
 
 // 定义统一的输出函数
