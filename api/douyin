@@ -1,12 +1,13 @@
 <?php
 /**
 *@Author: JH-Ahua
-*@CreateTime: 2025/5/8 下午11:40
+*@CreateTime: 2025/5/19 下午11:40
 *@email: admin@bugpk.com
 *@blog: www.jiuhunwl.cn
 *@Api: api.bugpk.com
 *@tip: 抖音视频去水印解析
 */
+error_reporting(0);
 header('Content-type: application/json');
 function douyin($url)
 {
@@ -34,6 +35,7 @@ function douyin($url)
 
     // 发送请求获取视频信息
     $response = curl('https://www.iesdouyin.com/share/video/' . $id, $header);
+
     $pattern = '/window\._ROUTER_DATA\s*=\s*(.*?)\<\/script>/s';
     preg_match($pattern, $response, $matches);
 
@@ -45,9 +47,11 @@ function douyin($url)
     if (!isset($videoInfo['loaderData'])) {
         return array('code' => 201, 'msg' => '解析失败');
     }
+
     //替换 "playwm" 为 "play"
     $videoResUrl = str_replace('playwm', 'play', $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['video']['play_addr']['url_list'][0]);
-
+    $videourl = getFinalUrl($videoResUrl);
+    $imgurl = $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['images'][0]['url_list'];
     // 构造返回数据
     $arr = array(
         'code' => 200,
@@ -60,16 +64,70 @@ function douyin($url)
             'time' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]["create_time"],
             'title' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['desc'],
             'cover' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['video']['cover']['url_list'][0],
-            'url' => $videoResUrl,
+            'images' =>$imgurl,
+            'url' => $videourl,
             'music' => array(
+                'title' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['music']['title'],
                 'author' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['music']['author'],
-                'avatar' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['music']['cover_large']['url_list'][0]
+                'avatar' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['music']['cover_large']['url_list'][0],
+                'url' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['video']['play_addr']['uri']
             )
         )
     );
     return $arr;
 }
+function getFinalUrl($url, $maxRetries = 3, $backoffFactor = 1, $timeout = 10) {
+    $finalUrl = $url;
 
+    for ($attempt = 0; $attempt < $maxRetries; $attempt++) {
+        // 计算重试间隔（指数退避）
+        if ($attempt > 0) {
+            $waitTime = pow(2, $attempt) * $backoffFactor;
+            usleep($waitTime * 1000000); // 转换为微秒
+        }
+
+        $ch = curl_init();
+
+        // 设置CURL选项
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // 允许重定向
+        curl_setopt($ch, CURLOPT_MAXREDIRS, 10); // 最大重定向次数
+        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // 忽略SSL验证
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // 忽略SSL验证
+
+        // 设置请求头模拟浏览器
+        $headers = [
+            'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language: en-US,en;q=0.5',
+            'Connection: keep-alive',
+        ];
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        // 执行请求
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $finalUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+
+        // 检查错误
+        if (curl_errno($ch)) {
+            echo "请求发生错误 (尝试 $attempt): " . curl_error($ch) . "\n";
+        } else {
+            // 如果请求成功且不是403，返回最终URL
+            if ($httpCode != 403) {
+                curl_close($ch);
+                return $finalUrl;
+            }
+        }
+
+        curl_close($ch);
+    }
+
+    // 如果所有尝试都失败，返回原始URL
+    return $url;
+}
 function extractId($url)
 {
     $headers = get_headers($url, true);
