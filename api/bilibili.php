@@ -65,8 +65,6 @@ if ($array['code'] == '0') {
             , 'video_url' => 'https://upos-sz-mirrorhw.bilivideo.com/' . explode('.bilivideo.com/', $array_2['data']['durl'][0]['url'])[1]
         ];
     }
-    $bilibilijson = json_encode($bilijson, 480);
-    $bilibilijson = json_decode($bilibilijson, true);
 
     $JSON = array(
         'code' => 200,
@@ -75,8 +73,7 @@ if ($array['code'] == '0') {
             'title' => $array['data']['title'],
             'cover' => $array['data']['pic'],
             'desc' => $array['data']['desc'],
-            'url' => $bilibilijson[0]['video_url'],
-//    , 'data' => $bilibilijson
+            'url' => $array_2['data']['durl'][0]['url'] ?? $bilijson['video_url'],
             'user' => [
                 'name' => $array['data']['owner']['name']
                 , 'user_img' => $array['data']['owner']['face']
