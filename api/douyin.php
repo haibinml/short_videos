@@ -51,7 +51,17 @@ function douyin($url)
     //替换 "playwm" 为 "play"
     $videoResUrl = str_replace('playwm', 'play', $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['video']['play_addr']['url_list'][0]);
     $videourl = getFinalUrl($videoResUrl);
-    $imgurl = $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['images'][0]['url_list'];
+    $imgurljson = $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['images'];
+    $imgurl = [];
+
+    // 遍历 JSON 数组
+    foreach ($imgurljson as $item) {
+        // 检查当前元素是否包含 url_list 标签
+        if (isset($item['url_list']) && is_array($item['url_list']) && count($item['url_list']) > 0) {
+            // 将 url_list 的第一个值添加到 $imgurl 数组中
+            $imgurl[] = $item['url_list'][0];
+        }
+    }
     // 构造返回数据
     $arr = array(
         'code' => 200,
@@ -65,7 +75,7 @@ function douyin($url)
             'title' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['desc'],
             'cover' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['video']['cover']['url_list'][0],
             'images' =>$imgurl,
-            'url' => $videourl,
+            'url' => count($imgurl)>0 ? '当前为图文解析，图文数量为:'.count($imgurl).'张图片' :$videourl,
             'music' => array(
                 'title' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['music']['title'],
                 'author' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['music']['author'],
