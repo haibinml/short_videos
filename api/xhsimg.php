@@ -1,0 +1,122 @@
+<?php
+/**
+*@Author: JH-Ahua
+*@CreateTime: 2025/6/16 下午4:17
+*@email: admin@bugpk.com
+*@blog: www.jiuhunwl.cn
+*@Api: api.bugpk.com
+*@tip: 小红书图文解析
+*/
+header('Content-type: application/json');
+
+// 定义统一的输出函数
+function output($code, $msg, $data = [])
+{
+    return json_encode([
+        'code' => $code,
+        'msg' => $msg,
+        'data' => $data
+    ], 480);
+}
+
+function xhsimg($url)
+{
+    $id = extractId($url);
+    // 构造请求数据
+    $cookie = "xhsTrackerId=e6018ab9-6936-4b02-cb65-a7f9f9e22ea0; xhsuid=y2PCwPFU9GCQnJH8; timestamp2=20210607d2293bcc8dcad65834920376; timestamp2.sig=QFn2Zv9pjUr07KDlnh886Yq43bZxOaT6t3WCzZdzcgM; xhsTracker=url=noteDetail&xhsshare=CopyLink; extra_exp_ids=gif_exp1,ques_exp2'";
+    $loc = get_headers($url, 1)["Location"];
+    // 发送请求获取视频信息
+    $response = get_curl($loc,$cookie);
+    if (!$response) {
+        return output(400, '请求失败');
+    }
+    // 优化正则表达式
+    $pattern = '/<script>\s*window.__INITIAL_STATE__\s*=\s*({[\s\S]*?})<\/script>/is';
+    if (preg_match($pattern, $response, $matches)) {
+        $jsonData = $matches[1];
+
+        // 将 undefined 替换为 null
+        $jsonData = str_replace('undefined', 'null', $jsonData);
+        $imagejson = json_decode($jsonData, true);
+        $imageData = $imagejson["note"]['noteDetailMap'][$id]['note'];
+        $imgurl = [];
+        foreach ($imageData['imageList'] as $item) {
+            // 检查当前元素是否包含 url_list 标签
+            if (isset($item['urlDefault'])) {
+                // 将 url_list 的第一个值添加到 $imgurl 数组中
+                $imgurl[] = $item['urlDefault'];
+            }
+        }
+        if ($jsonData) {
+            if ($imageData) {
+                $data = [
+                    'author' => $imageData['user']['nickname'] ?? '',
+                    'userId' => $imageData['user']['userId'] ?? '',
+                    'title' => $imageData['title'] ?? '',
+                    'desc' => $imageData['desc'] ?? '',
+                    'avatar' => $imageData['user']['avatar'] ?? '',
+                    'cover' => $imageData['imageList'][0]['urlPre'] ?? '',
+                    'imgurl' => $imgurl
+                ];
+                return output(200, '解析成功', $data);
+            } else {
+                return output(404, '解析失败，未获取到视频链接');
+            }
+        } else {
+            return output(400, '匹配到的内容不是有效的 JSON 数据');
+        }
+    } else {
+        return output(400, '未找到 JSON 数据');
+    }
+}
+
+function get_curl($url, $cookie)
+{
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_COOKIE, $cookie);
+    curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+    $output = curl_exec($ch);
+    curl_close($ch);
+    return $output;
+}
+function extractId($url)
+{
+    $headers = get_headers($url, true);
+    if ($headers === false) {
+        // 如果获取头信息失败，直接使用原始 URL
+        $loc = $url;
+    } else {
+        // 处理重定向头可能是数组的情况
+        if (isset($headers['Location']) && is_array($headers['Location'])) {
+            $loc = end($headers['Location']);
+        } else {
+            $loc = $headers['Location'] ?? $url;
+        }
+    }
+    // 确保 $loc 是字符串
+    if (!is_string($loc)) {
+        $loc = strval($loc);
+    }
+    $pattern = '/discovery\/item\/([a-zA-Z0-9]+)/';
+    preg_match($pattern, $loc, $id);
+    return !empty($id) ? $id[1] : null;
+}
+// 使用空合并运算符检查 url 参数
+$url = $_GET['url'] ?? '';
+$parts = explode('/', $url);
+$url = 'http://xhslink.com/a/'.$parts[4];
+// 检查必要参数
+if (!$url) {
+    header('Content-Type: application/json');
+    echo json_encode(['error' => '必须提供url参数','Auther' => 'BugPk','website' => 'https://api.bugpk.com/'], 480);
+    return;
+} else {
+    echo xhsimg($url);
+}
+?>
