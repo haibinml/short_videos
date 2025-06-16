@@ -35,7 +35,7 @@ http://你的服务器地址/xxx.php?url=目标链接
 
 ### 请求示例
 ```plaintext
-https://api.bugpk.com/api/xhs?url=http://xhslink.com/a/63LnyN3WImLb
+https://api.bugpk.com/api/xhs?url=http://xhslink.com/a/63LnyN3WImLbb
 ```
 ### 请求结果
 ```plaintext
