@@ -1,13 +1,12 @@
 <?php
 /**
 *@Author: JH-Ahua
-*@CreateTime: 2025/5/19 下午11:40
+*@CreateTime: 2025/6/17 下午5:00
 *@email: admin@bugpk.com
 *@blog: www.jiuhunwl.cn
 *@Api: api.bugpk.com
-*@tip: 抖音视频去水印解析
+*@tip: 抖音视频图集去水印解析
 */
-error_reporting(0);
 header('Content-type: application/json');
 function douyin($url)
 {
@@ -16,18 +15,6 @@ function douyin($url)
     $header = array('User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1 Edg/122.0.0.0');
     // 尝试从 URL 中获取视频 ID
     $id = extractId($url);
-
-    // 检查 ID 是否有效
-    if (empty($id)) {
-        // 访问当前链接获取跳转后的内容
-        $response = curl($url, $header);
-        // 假设跳转后的 URL 会在响应头中返回，这里获取跳转后的 URL
-        $redirectUrl = getRedirectUrl($response);
-        if ($redirectUrl) {
-            // 尝试从跳转后的 URL 中获取视频 ID
-            $id = extractId($redirectUrl);
-        }
-    }
     // 检查 ID 是否有效
     if (empty($id)) {
         return array('code' => 400, 'msg' => '无法解析视频 ID');
@@ -35,7 +22,6 @@ function douyin($url)
 
     // 发送请求获取视频信息
     $response = curl('https://www.iesdouyin.com/share/video/' . $id, $header);
-
     $pattern = '/window\._ROUTER_DATA\s*=\s*(.*?)\<\/script>/s';
     preg_match($pattern, $response, $matches);
 
@@ -47,19 +33,19 @@ function douyin($url)
     if (!isset($videoInfo['loaderData'])) {
         return array('code' => 201, 'msg' => '解析失败');
     }
-
     //替换 "playwm" 为 "play"
     $videoResUrl = str_replace('playwm', 'play', $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['video']['play_addr']['url_list'][0]);
-    $videourl = getFinalUrl($videoResUrl);
+
     $imgurljson = $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['images'];
     $imgurl = [];
-
-    // 遍历 JSON 数组
-    foreach ($imgurljson as $item) {
-        // 检查当前元素是否包含 url_list 标签
-        if (isset($item['url_list']) && is_array($item['url_list']) && count($item['url_list']) > 0) {
-            // 将 url_list 的第一个值添加到 $imgurl 数组中
-            $imgurl[] = $item['url_list'][0];
+    if (is_array($imgurljson) && isset($imgurljson[0])) {
+        // 遍历 JSON 数组
+        foreach ($imgurljson as $item) {
+            // 检查当前元素是否包含 url_list 标签
+            if (isset($item['url_list']) && is_array($item['url_list']) && count($item['url_list']) > 0) {
+                // 将 url_list 的第一个值添加到 $imgurl 数组中
+                $imgurl[] = $item['url_list'][0];
+            }
         }
     }
     // 构造返回数据
@@ -74,8 +60,8 @@ function douyin($url)
             'time' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]["create_time"],
             'title' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['desc'],
             'cover' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['video']['cover']['url_list'][0],
-            'images' =>$imgurl,
-            'url' => count($imgurl)>0 ? '当前为图文解析，图文数量为:'.count($imgurl).'张图片' :$videourl,
+            'images' => $imgurl,
+            'url' => count($imgurl) > 0 ? '当前为图文解析，图文数量为:' . count($imgurl) . '张图片' : $videoResUrl,
             'music' => array(
                 'title' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['music']['title'],
                 'author' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['music']['author'],
@@ -86,58 +72,7 @@ function douyin($url)
     );
     return $arr;
 }
-function getFinalUrl($url, $maxRetries = 3, $backoffFactor = 1, $timeout = 10) {
-    $finalUrl = $url;
 
-    for ($attempt = 0; $attempt < $maxRetries; $attempt++) {
-        // 计算重试间隔（指数退避）
-        if ($attempt > 0) {
-            $waitTime = pow(2, $attempt) * $backoffFactor;
-            usleep($waitTime * 1000000); // 转换为微秒
-        }
-
-        $ch = curl_init();
-
-        // 设置CURL选项
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // 允许重定向
-        curl_setopt($ch, CURLOPT_MAXREDIRS, 10); // 最大重定向次数
-        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // 忽略SSL验证
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // 忽略SSL验证
-
-        // 设置请求头模拟浏览器
-        $headers = [
-            'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language: en-US,en;q=0.5',
-            'Connection: keep-alive',
-        ];
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-        // 执行请求
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $finalUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-
-        // 检查错误
-        if (curl_errno($ch)) {
-            echo "请求发生错误 (尝试 $attempt): " . curl_error($ch) . "\n";
-        } else {
-            // 如果请求成功且不是403，返回最终URL
-            if ($httpCode != 403) {
-                curl_close($ch);
-                return $finalUrl;
-            }
-        }
-
-        curl_close($ch);
-    }
-
-    // 如果所有尝试都失败，返回原始URL
-    return $url;
-}
 function extractId($url)
 {
     $headers = get_headers($url, true);
@@ -158,18 +93,11 @@ function extractId($url)
         $loc = strval($loc);
     }
 
-    preg_match('/[0-9]+/', $loc, $id);
+    preg_match('/[0-9]+|(?<=video\/)[0-9]+/', $loc, $id);
     return !empty($id) ? $id[0] : null;
 }
 
-function getRedirectUrl($html)
-{
-    $pattern = '/<link data-react-helmet="true" rel="canonical" href="(.*?)"/';
-    if (preg_match($pattern, $html, $matches)) {
-        return $matches[1];
-    }
-    return null;
-}
+
 function curl($url, $header = null, $data = null)
 {
     $con = curl_init((string)$url);
@@ -197,8 +125,9 @@ function curl($url, $header = null, $data = null)
     curl_close($con);
     return $result;
 }
+
 // 使用空合并运算符检查 url 参数
-$url = $_GET['url']?? '';
+$url = $_GET['url'] ?? '';
 if (empty($url)) {
     echo json_encode(['code' => 201, 'msg' => 'url为空'], 480);
 } else {
