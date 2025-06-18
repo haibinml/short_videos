@@ -124,16 +124,25 @@ function extractId($url)
 
     return $id;
 }
-// 使用空合并运算符检查 url 参数
-$url = $_GET['url'] ?? '';
-//$parts = explode('/', $url);
-//$url = 'http://xhslink.com/a/'.$parts[4];
+// 获取请求参数
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $url = $_GET['url']?? null;
+} else {
+    $url = $_POST['url']?? null;
+}
+
 // 检查必要参数
 if (!$url) {
     header('Content-Type: application/json');
     echo json_encode(['error' => '必须提供url参数','Auther' => 'BugPk','website' => 'https://api.bugpk.com/'], 480);
     return;
 } else {
+    //部分服务器接收参数会变成xhs.com
+    $domain = parse_url($url);
+    if($domain['host']=="xhs.com"){
+        $parts = explode('/', $url);
+        $url = 'http://xhslink.com/a/'.$parts[4]; 
+    }
     echo xhsimg($url);
 }
 ?>
