@@ -1,15 +1,10 @@
 <?php
-/**
-*@Author: JH-Ahua
-*@CreateTime: 2025/5/8 下午11:49
-*@email: admin@bugpk.com
-*@blog: www.jiuhunwl.cn
-*@Api: api.bugpk.com
-*@tip: 小红书短视频去水印解析
-*/
+header("Access-Control-Allow-Origin: *");
 header('Content-type: application/json');
+// 开启错误报告
+// error_reporting(E_ALL);
+// ini_set('display_errors', 1);
 
-// 定义统一的输出函数
 function output($code, $msg, $data = []) {
     return json_encode([
         'code' => $code,
@@ -90,23 +85,32 @@ function curl($url, $header = null, $data = null) {
     return $result;
 }
 
+
 // 获取请求参数
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $url = $_GET['url']?? null;
+    $fullUrl = $_SERVER['REQUEST_URI'];
+    // 查找url参数的位置
+    $urlParamPos = strpos($fullUrl, 'url=');
+    if ($urlParamPos !== false) {
+        // 提取url参数后面的所有内容
+        $encodedUrl = substr($fullUrl, $urlParamPos + 4);
+
+        // 解码URL
+        $url = urldecode($encodedUrl) ?? null;
+    }
 } else {
-    $url = $_POST['url']?? null;
+    $url = $_POST['url'] ?? null;
 }
 // 检查必要参数
-if (!$url) {
+if (empty($url)) {
     header('Content-Type: application/json');
     echo json_encode(['error' => '必须提供url参数','Auther' => 'BugPk','website' => 'https://api.bugpk.com/'], 480);
     return;
 } else {
-    //部分服务器接收参数时会将域名变为xhs.com
     $domain = parse_url($url);
     if($domain['host']=="xhs.com"){
         $parts = explode('/', $url);
-        $url = 'http://xhslink.com/a/'.$parts[4]; 
+        $url = 'http://xhslink.com/a/'.$parts[4];
     }
     echo xhs($url);
 }
