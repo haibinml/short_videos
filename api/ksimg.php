@@ -7,6 +7,7 @@
 *@Api: api.bugpk.com
 *@tip: 快手图文解析
 */
+header("Access-Control-Allow-Origin: *");
 header('Content-type: application/json');
 
 /**
