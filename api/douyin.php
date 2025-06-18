@@ -7,6 +7,7 @@
 *@Api: api.bugpk.com
 *@tip: 抖音视频图集去水印解析
 */
+header("Access-Control-Allow-Origin: *");
 header('Content-type: application/json');
 function douyin($url)
 {
