@@ -7,6 +7,7 @@
 *@Api: api.bugpk.com
 *@tip: 快手短视频去水印解析
 */
+header("Access-Control-Allow-Origin: *");
 header('content-type:application/json; charset=utf-8');
 // 格式化响应数据的函数
 function formatResponse($code = 200, $msg = '解析成功', $data = [])
