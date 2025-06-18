@@ -8,6 +8,7 @@ header('Content-type: application/json');
 *@Api: api.bugpk.com
 *@tip: 小红书短视频图集解析
 */
+header("Access-Control-Allow-Origin: *");
 // 获取请求参数
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $fullUrl = $_SERVER['REQUEST_URI'];
