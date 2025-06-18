@@ -21,15 +21,28 @@ function output($code, $msg, $data = [])
 
 function xhsimg($url)
 {
-    $id = extractId($url);
     // 构造请求数据
     $cookie = "xhsTrackerId=e6018ab9-6936-4b02-cb65-a7f9f9e22ea0; xhsuid=y2PCwPFU9GCQnJH8; timestamp2=20210607d2293bcc8dcad65834920376; timestamp2.sig=QFn2Zv9pjUr07KDlnh886Yq43bZxOaT6t3WCzZdzcgM; xhsTracker=url=noteDetail&xhsshare=CopyLink; extra_exp_ids=gif_exp1,ques_exp2'";
-    $loc = get_headers($url, 1)["Location"]??$url;
+    $domain = parse_url($url);
+    if($domain['host']=="www.xiaohongshu.com"){
+        $loc = $url;
+       // 定义正则表达式模式
+        $pattern = '/explore\/([a-zA-Z0-9]+)/';
+        // 执行匹配
+        if (preg_match($pattern, $loc, $matches)) {
+            $id=$matches[1]; // 返回捕获的笔记ID
+
+        }
+    }else{
+        $id = extractId($url);
+        $loc = get_headers($url, 1)["Location"] ?? $url;
+    }
     // 发送请求获取视频信息
     $response = get_curl($loc,$cookie);
     if (!$response) {
-        return output(400, '请求失败');
+        return output(400, '请求失败,请检查图文是否失效');
     }
+
     // 优化正则表达式
     $pattern = '/<script>\s*window.__INITIAL_STATE__\s*=\s*({[\s\S]*?})<\/script>/is';
     if (preg_match($pattern, $response, $matches)) {
@@ -124,9 +137,19 @@ function extractId($url)
 
     return $id;
 }
+
 // 获取请求参数
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $url = $_GET['url']?? null;
+    $fullUrl = $_SERVER['REQUEST_URI'];
+    // 查找url参数的位置
+    $urlParamPos = strpos($fullUrl, 'url=');
+    if ($urlParamPos !== false) {
+        // 提取url参数后面的所有内容
+        $encodedUrl = substr($fullUrl, $urlParamPos + 4);
+        
+        // 解码URL
+        $url = urldecode($encodedUrl);
+    }
 } else {
     $url = $_POST['url']?? null;
 }
@@ -137,7 +160,6 @@ if (!$url) {
     echo json_encode(['error' => '必须提供url参数','Auther' => 'BugPk','website' => 'https://api.bugpk.com/'], 480);
     return;
 } else {
-    //部分服务器接收参数会变成xhs.com
     $domain = parse_url($url);
     if($domain['host']=="xhs.com"){
         $parts = explode('/', $url);
