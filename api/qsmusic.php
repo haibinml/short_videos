@@ -7,6 +7,7 @@
 *@Api: api.bugpk.com
 *@tip: 汽水音乐解析
 */
+header("Access-Control-Allow-Origin: *");
 header('Content-type: text/json;charset=utf-8');
 $url = (isset($_GET['url'])) ? $_GET['url'] : '';
 $type = (isset($_GET['type'])) ? $_GET['type'] : 'json';
