@@ -7,6 +7,7 @@
  * @Api: api.bugpk.com
  * @tip: 小红书图文解析
  */
+header("Access-Control-Allow-Origin: *");
 header('Content-type: application/json');
 
 // 定义统一的输出函数
