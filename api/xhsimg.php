@@ -24,7 +24,7 @@ function xhsimg($url)
     $id = extractId($url);
     // 构造请求数据
     $cookie = "xhsTrackerId=e6018ab9-6936-4b02-cb65-a7f9f9e22ea0; xhsuid=y2PCwPFU9GCQnJH8; timestamp2=20210607d2293bcc8dcad65834920376; timestamp2.sig=QFn2Zv9pjUr07KDlnh886Yq43bZxOaT6t3WCzZdzcgM; xhsTracker=url=noteDetail&xhsshare=CopyLink; extra_exp_ids=gif_exp1,ques_exp2'";
-    $loc = get_headers($url, 1)["Location"];
+    $loc = get_headers($url, 1)["Location"] ?? $url;
     // 发送请求获取视频信息
     $response = get_curl($loc,$cookie);
     if (!$response) {
@@ -109,8 +109,6 @@ function extractId($url)
 }
 // 使用空合并运算符检查 url 参数
 $url = $_GET['url'] ?? '';
-$parts = explode('/', $url);
-$url = 'http://xhslink.com/a/'.$parts[4];
 // 检查必要参数
 if (!$url) {
     header('Content-Type: application/json');
