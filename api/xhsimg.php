@@ -1,12 +1,12 @@
 <?php
 /**
-*@Author: JH-Ahua
-*@CreateTime: 2025/6/16 下午4:17
-*@email: admin@bugpk.com
-*@blog: www.jiuhunwl.cn
-*@Api: api.bugpk.com
-*@tip: 小红书图文解析
-*/
+ * @Author: JH-Ahua
+ * @CreateTime: 2025/6/16 下午4:17
+ * @email: admin@bugpk.com
+ * @blog: www.jiuhunwl.cn
+ * @Api: api.bugpk.com
+ * @tip: 小红书图文解析
+ */
 header('Content-type: application/json');
 
 // 定义统一的输出函数
@@ -24,21 +24,31 @@ function xhsimg($url)
     // 构造请求数据
     $cookie = "xhsTrackerId=e6018ab9-6936-4b02-cb65-a7f9f9e22ea0; xhsuid=y2PCwPFU9GCQnJH8; timestamp2=20210607d2293bcc8dcad65834920376; timestamp2.sig=QFn2Zv9pjUr07KDlnh886Yq43bZxOaT6t3WCzZdzcgM; xhsTracker=url=noteDetail&xhsshare=CopyLink; extra_exp_ids=gif_exp1,ques_exp2'";
     $domain = parse_url($url);
-    if($domain['host']=="www.xiaohongshu.com"){
+    if ($domain['host'] == "www.xiaohongshu.com") {
         $loc = $url;
-       // 定义正则表达式模式
-        $pattern = '/explore\/([a-zA-Z0-9]+)/';
-        // 执行匹配
-        if (preg_match($pattern, $loc, $matches)) {
-            $id=$matches[1]; // 返回捕获的笔记ID
+        // 定义正则表达式模式
+        $patterns = [
+            '/discovery\/item\/([a-zA-Z0-9]+)/',     // 原始模式
+            '/explore\/([a-zA-Z0-9]+)/',             // 匹配探索页面链接
+            '/item\/([a-zA-Z0-9]+)/',                // 匹配项目详情链接
+            '/note\/([a-zA-Z0-9]+)/',                // 匹配笔记链接
+        ];
 
+        // 依次尝试每个模式
+        $id = null;
+        foreach ($patterns as $pattern) {
+            preg_match($pattern, $loc, $matches);
+            if (!empty($matches[1])) {
+                $id = $matches[1];
+                break;
+            }
         }
-    }else{
+    } else {
         $id = extractId($url);
         $loc = get_headers($url, 1)["Location"] ?? $url;
     }
     // 发送请求获取视频信息
-    $response = get_curl($loc,$cookie);
+    $response = get_curl($loc, $cookie);
     if (!$response) {
         return output(400, '请求失败,请检查图文是否失效');
     }
@@ -97,6 +107,7 @@ function get_curl($url, $cookie)
     curl_close($ch);
     return $output;
 }
+
 function extractId($url)
 {
     $headers = @get_headers($url, true);
@@ -146,24 +157,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if ($urlParamPos !== false) {
         // 提取url参数后面的所有内容
         $encodedUrl = substr($fullUrl, $urlParamPos + 4);
-        
+
         // 解码URL
-        $url = urldecode($encodedUrl);
+        $url = urldecode($encodedUrl) ?? null;
     }
 } else {
-    $url = $_POST['url']?? null;
+    $url = $_POST['url'] ?? null;
 }
 
 // 检查必要参数
-if (!$url) {
+if (empty($url)) {
     header('Content-Type: application/json');
-    echo json_encode(['error' => '必须提供url参数','Auther' => 'BugPk','website' => 'https://api.bugpk.com/'], 480);
+    echo json_encode(['error' => '必须提供url参数', 'Auther' => 'BugPk', 'website' => 'https://api.bugpk.com/'], 480);
     return;
 } else {
     $domain = parse_url($url);
-    if($domain['host']=="xhs.com"){
+    if ($domain['host'] == "xhs.com") {
         $parts = explode('/', $url);
-        $url = 'http://xhslink.com/a/'.$parts[4]; 
+        $url = 'http://xhslink.com/a/' . $parts[4];
     }
     echo xhsimg($url);
 }
