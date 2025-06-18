@@ -96,9 +96,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 } else {
     $url = $_POST['url']?? null;
 }
-if (empty($url)) {
-    echo output(201, 'url 为空');
+// 检查必要参数
+if (!$url) {
+    header('Content-Type: application/json');
+    echo json_encode(['error' => '必须提供url参数','Auther' => 'BugPk','website' => 'https://api.bugpk.com/'], 480);
+    return;
 } else {
+    //部分服务器接收参数时会将域名变为xhs.com
+    $domain = parse_url($url);
+    if($domain['host']=="xhs.com"){
+        $parts = explode('/', $url);
+        $url = 'http://xhslink.com/a/'.$parts[4]; 
+    }
     echo xhs($url);
 }
 ?>
