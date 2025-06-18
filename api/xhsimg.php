@@ -24,7 +24,7 @@ function xhsimg($url)
     $id = extractId($url);
     // 构造请求数据
     $cookie = "xhsTrackerId=e6018ab9-6936-4b02-cb65-a7f9f9e22ea0; xhsuid=y2PCwPFU9GCQnJH8; timestamp2=20210607d2293bcc8dcad65834920376; timestamp2.sig=QFn2Zv9pjUr07KDlnh886Yq43bZxOaT6t3WCzZdzcgM; xhsTracker=url=noteDetail&xhsshare=CopyLink; extra_exp_ids=gif_exp1,ques_exp2'";
-    $loc = get_headers($url, 1)["Location"] ?? $url;
+    $loc = get_headers($url, 1)["Location"]??$url;
     // 发送请求获取视频信息
     $response = get_curl($loc,$cookie);
     if (!$response) {
@@ -34,7 +34,6 @@ function xhsimg($url)
     $pattern = '/<script>\s*window.__INITIAL_STATE__\s*=\s*({[\s\S]*?})<\/script>/is';
     if (preg_match($pattern, $response, $matches)) {
         $jsonData = $matches[1];
-
         // 将 undefined 替换为 null
         $jsonData = str_replace('undefined', 'null', $jsonData);
         $imagejson = json_decode($jsonData, true);
@@ -87,7 +86,7 @@ function get_curl($url, $cookie)
 }
 function extractId($url)
 {
-    $headers = get_headers($url, true);
+    $headers = @get_headers($url, true);
     if ($headers === false) {
         // 如果获取头信息失败，直接使用原始 URL
         $loc = $url;
@@ -99,16 +98,36 @@ function extractId($url)
             $loc = $headers['Location'] ?? $url;
         }
     }
+
     // 确保 $loc 是字符串
     if (!is_string($loc)) {
         $loc = strval($loc);
     }
-    $pattern = '/discovery\/item\/([a-zA-Z0-9]+)/';
-    preg_match($pattern, $loc, $id);
-    return !empty($id) ? $id[1] : null;
+
+    // 定义多个正则表达式模式以匹配不同格式的URL
+    $patterns = [
+        '/discovery\/item\/([a-zA-Z0-9]+)/',     // 原始模式
+        '/explore\/([a-zA-Z0-9]+)/',             // 匹配探索页面链接
+        '/item\/([a-zA-Z0-9]+)/',                // 匹配项目详情链接
+        '/note\/([a-zA-Z0-9]+)/',                // 匹配笔记链接
+    ];
+
+    // 依次尝试每个模式
+    $id = null;
+    foreach ($patterns as $pattern) {
+        preg_match($pattern, $loc, $matches);
+        if (!empty($matches[1])) {
+            $id = $matches[1];
+            break;
+        }
+    }
+
+    return $id;
 }
 // 使用空合并运算符检查 url 参数
 $url = $_GET['url'] ?? '';
+//$parts = explode('/', $url);
+//$url = 'http://xhslink.com/a/'.$parts[4];
 // 检查必要参数
 if (!$url) {
     header('Content-Type: application/json');
