@@ -1,91 +1,117 @@
 <?php
 /**
 *@Author: JH-Ahua
-*@CreateTime: 2025/5/9 上午12:18
+*@CreateTime: 2025/6/19 下午8:37
 *@email: admin@bugpk.com
 *@blog: www.jiuhunwl.cn
 *@Api: api.bugpk.com
-*@tip: 快手图文解析
+*@tip: 快手图集解析
 */
 header("Access-Control-Allow-Origin: *");
 header('Content-type: application/json');
-
-/**
- * 从快手链接中提取图片信息
- *
- * @param string $url 快手链接
- * @return array 包含图片信息的数组
- */
 function kuaishou($url)
 {
     $headers = [
-        'Cookie: 写自己的cookie',
+        'Cookie: 自己的cookie',
         'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0'
     ];
-    $redirectUrl = get_headers($url, 1)['Location']?? '';
-    if (empty($redirectUrl)) {
-        return [];
-    }
+    $loc = get_headers($url, 1)['Location'];
 
-    $pageContent = curl($redirectUrl,$headers);
-    if ($pageContent === false) {
-        return [];
-    }
-
+    $url = curl($loc,$headers);
     $apolloStatePattern = '/window\.INIT_STATE\s*=\s*(.*?)\<\/script>/s';
-    if (preg_match($apolloStatePattern, $pageContent, $matches)) {
+    // 匹配包含fid的JSON对象（带转义处理）
+    if (preg_match($apolloStatePattern, $url, $matches)) {
+        // 处理PHP自动添加的反斜杠
         $jsonString = stripslashes($matches[1]);
         $data = json_decode($jsonString, true);
-        $filteredData = filterData($data);
-
-        $firstValue = !empty($filteredData)? json_encode(reset($filteredData)) : '{}';
-        $imgjson = json_decode($firstValue, true);
-        $imageList = $imgjson['photo']['ext_params']['atlas']['list']?? [];
-        $music = 'http://txmov2.a.kwimgs.com'.$imgjson['photo']['ext_params']['atlas']['music'];
-        $images = [];
-        foreach ($imageList as $imagePath) {
-            $images[] = 'http://tx2.a.yximgs.com/' . $imagePath;
+        if (json_last_error() != JSON_ERROR_NONE) {
+            $data = json_decode(cleanInvalidJsonEscapes($jsonString), true);
+        }
+        // 确保 $data 是数组或对象
+        if (is_array($data) || is_object($data)) {
+            foreach ($data as $key => $value) {
+                if (strpos($key, 'tusjoh') === 0 && isset($value['fid'])) {
+                    $filteredData[$key] = $value;
+                }
+            }
+        } else {
+            echo('数据类型非数组');
+            $filteredData = []; // 设置默认值为空数组
         }
 
-        if (!empty($imageList)) {
-            return [
+        // 获取第一个标签的值
+        $firstValue = !empty($filteredData) ? json_encode(reset($filteredData)) : '{}';
+        $imgjson =json_decode($firstValue,true);
+        $img = $imgjson['photo']['ext_params']['atlas']['list']??$imgjson['photo']['coverUrls'][0]['url'];
+        $music = 'http://txmov2.a.kwimgs.com'.($imgjson['photo']['ext_params']['atlas']['music']??$imgjson['photo']['music']['audioUrls'][0]['url']);
+        $images = array();
+        $imgcount = 1;
+        if (is_string($img)){
+            array_push($images,$img);
+        }else{
+            for ($i = 0; $i < count($img); $i++) {
+                $none = 'http://tx2.a.yximgs.com/' . $img[$i];
+                array_push($images, $none);
+            }
+            $imgcount = count($images);
+        }
+        if (!empty($img)) {
+            $arr = array(
                 'code' => 200,
                 'msg' => 'success',
-                'count' => count($imageList),
+                'count' => $imgcount,
                 'music' => $music,
                 'images' => $images
-            ];
+            );
+            return $arr;
         }
     }
-
-    return [];
 }
+function cleanInvalidJsonEscapes($jsonStr) {
+    // 处理非法Unicode转义序列（如：\ufu3KP → \ufu3 KP → 删除非法部分）
+    $jsonStr = preg_replace_callback(
+        '/\\\\u([0-9a-fA-F]{0,4})([0-9a-fA-F]*)([^0-9a-fA-F].*?)(?=\\\\u|$)/',
+        function($matches) {
+            $validPart = '';
+            $extraPart = '';
 
-/**
- * 过滤数据，只保留以 'tusjoh' 开头且包含 'fid' 的键值对
- *
- * @param array $data 要过滤的数据
- * @return array 过滤后的数据
- */
-function filterData($data)
-{
-    $filteredData = [];
-    foreach ($data as $key => $value) {
-        if (strpos($key, 'tusjoh') === 0 && isset($value['fid'])) {
-            $filteredData[$key] = $value;
-        }
-    }
-    return $filteredData;
+            // 如果前4位是合法十六进制，保留为有效的\uXXXX
+            if (strlen($matches[1]) === 4) {
+                $validPart = '\\u' . $matches[1];
+                $extraPart = $matches[2] . $matches[3];
+            }
+            // 不足4位但后续有十六进制字符，补足4位
+            elseif (strlen($matches[1]) + strlen($matches[2]) >= 4) {
+                $hexChars = $matches[1] . $matches[2];
+                $validPart = '\\u' . substr($hexChars, 0, 4);
+                $extraPart = substr($hexChars, 4) . $matches[3];
+            }
+            // 完全非法，删除\u
+            else {
+                $extraPart = $matches[1] . $matches[2] . $matches[3];
+            }
+
+            // 保留非转义的字符部分
+            return $validPart . (empty($extraPart) ? '' : ' ' . $extraPart);
+        },
+        $jsonStr
+    );
+
+    // 移除剩余的非法转义字符（保留合法的JSON转义）
+    $jsonStr = preg_replace(
+        '/\\\\([^"\\/bfnrtu])/',
+        '$1',
+        $jsonStr
+    );
+
+    // 修复单引号为双引号
+    $jsonStr = str_replace("'", '"', $jsonStr);
+
+    // 移除多余的分号
+    $jsonStr = preg_replace('/;([^"]*")/', '$1', $jsonStr);
+
+    return $jsonStr;
 }
-
-/**
- * 使用 curl 发起 HTTP 请求
- *
- * @param string $url 请求的 URL
- * @param array|null $header 请求头
- * @param array|null $data 请求数据
- * @return string|false 请求结果或 false（请求失败）
- */
 function curl($url, $header = null, $data = null)
 {
     $con = curl_init((string)$url);
@@ -94,28 +120,17 @@ function curl($url, $header = null, $data = null)
     curl_setopt($con, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($con, CURLOPT_FOLLOWLOCATION, 1);
     curl_setopt($con, CURLOPT_AUTOREFERER, 1);
-
     if (isset($header)) {
         curl_setopt($con, CURLOPT_HTTPHEADER, $header);
     }
-
     if (isset($data)) {
         curl_setopt($con, CURLOPT_POST, true);
         curl_setopt($con, CURLOPT_POSTFIELDS, $data);
     }
-
     curl_setopt($con, CURLOPT_TIMEOUT, 5000);
     $result = curl_exec($con);
-
-    if ($result === false) {
-        // 记录错误信息
-        error_log('Curl error: '. curl_error($con));
-    }
-
-    curl_close($con);
     return $result;
 }
-
 $url = $_GET['url']?? '';
 if (empty($url)) {
     echo json_encode(['code' => 201, 'msg' => 'url为空'], 480);
