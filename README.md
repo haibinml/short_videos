@@ -1,5 +1,5 @@
 <div align="center">
-  <img width="100px" alt="logo" src="https://api.bugpk.com/logo.png"/></a>
+  <img width="100px" alt="logo" src="https://img.jiuhunwl.cn/up/2025/05/23/68305545df6d7.png"/></a>
   <p><em>短视频去水印解析接口源码</em></p>
 <div>
   <a href="https://github.com/OpenListTeam/jiuhunwl/short_videos/main/LICENSE">
