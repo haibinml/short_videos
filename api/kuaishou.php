@@ -25,7 +25,7 @@ function kuaishou($url)
 {
     // 定义请求头
     $headers = [
-        'Cookie: 必填,
+        'Cookie: 必填',
         'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0'
     ];
     $newurl = getRedirectedUrl($url);
@@ -56,6 +56,7 @@ function kuaishou($url)
             $cleanedApolloState = str_replace($charChainToRemove, '', $cleanedApolloState);
             $cleanedApolloState = json_decode($cleanedApolloState, true);
             $videoInfo = $cleanedApolloState['defaultClient'] ?? null;
+            $videoInfo = '';
             if ($videoInfo) {
                 $key = "VisionVideoDetailPhoto:{$id}";
                 $json = $videoInfo[$key] ?? null;
