@@ -1,12 +1,12 @@
 <?php
 /**
-*@Author: JH-Ahua
-*@CreateTime: 2025/5/25 下午3:26
-*@email: admin@bugpk.com
-*@blog: www.jiuhunwl.cn
-*@Api: api.bugpk.com
-*@tip: bilibili去水解析
-*/
+ * @Author: JH-Ahua
+ * @CreateTime: 2025/5/25 下午3:26
+ * @email: admin@bugpk.com
+ * @blog: www.jiuhunwl.cn
+ * @Api: api.bugpk.com
+ * @tip: bilibili去水解析
+ */
 header("Access-Control-Allow-Origin: *");
 header('Content-Type: application/json');
 $urls = isset($_GET['url']) ? $_GET['url'] : '';
