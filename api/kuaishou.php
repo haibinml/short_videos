@@ -1,7 +1,7 @@
 <?php
 /**
 *@Author: JH-Ahua
-*@CreateTime: 2025/5/8 下午11:49
+*@CreateTime: 2025/6/22 12:45
 *@email: admin@bugpk.com
 *@blog: www.jiuhunwl.cn
 *@Api: api.bugpk.com
@@ -25,7 +25,7 @@ function kuaishou($url)
 {
     // 定义请求头
     $headers = [
-        'Cookie: 必填',
+        'Cookie: ',
         'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0'
     ];
     $newurl = getRedirectedUrl($url);
@@ -57,16 +57,16 @@ function kuaishou($url)
             $cleanedApolloState = json_decode($cleanedApolloState, true);
             $videoInfo = $cleanedApolloState['defaultClient'] ?? null;
             $video_url = '';
-            if (!empty($videoInfo) {
+            if (!empty($videoInfo)) {
                 $key = "VisionVideoDetailPhoto:{$id}";
                 $json = $videoInfo[$key] ?? null;
                 if ($json) {
                     $video_url = $json['photoUrl'];
+                }
             }else{
                 return null;
             }
         }
-    }
         if (!empty($video_url)) {
             $arr = array(
                 'code' => 200,
@@ -78,7 +78,11 @@ function kuaishou($url)
                 )
             );
             return $arr;
+        }else{
+            return null;
         }
+    }else{
+        return null;
     }
 }
 
