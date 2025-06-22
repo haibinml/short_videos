@@ -7,6 +7,7 @@
  * @Api: api.bugpk.com
  * @tip: bilibili去水解析
  */
+
 header("Access-Control-Allow-Origin: *");
 header('Content-Type: application/json');
 $urls = isset($_GET['url']) ? $_GET['url'] : '';
