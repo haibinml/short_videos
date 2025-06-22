@@ -13,11 +13,12 @@
 # Source code for short video watermark removal and parsing interface
 | English | [中文](./README.md)
 ## ！Declaration ！
-本项目为开源软件，遵循MIT许可证。任何个人或组织均可自由使用、修改和分发本项目的源代码。然而，我们明确声明，本项目及其任何衍生作品不得用于任何商业或付费项目。任何违反此声明的行为都将被视为对本项目许可证的侵犯。我们鼓励大家在遵守开源精神和许可证的前提下，积极贡献和分享代码。
+This project is open source software and is licensed under the MIT license. Any person or organization is free to use, modify and distribute the source code of this project. However, we expressly state that the Project and any derivative works thereof may not be used for any commercial or paid projects. Any violation of this statement will be considered an infringement of the license of this project. We encourage everyone to contribute and share their code in accordance with the open source ethos and licenses.
 
 ## 🚀 Project Introduction
-本工具用于解析短视频平台的视频链接，获取视频的详细信息，如视频地址、封面图、作者信息等。
-
+This tool is used to parse the video link of the short video platform and obtain the detailed information of the video, such as the video address, cover image, and author information.
+## Project environment
+PHP8.0
 ## Functional Features
 - 支持多种短视频平台的链接解析
 - 快速获取视频相关信息
