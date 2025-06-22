@@ -56,7 +56,7 @@ function kuaishou($url)
             $cleanedApolloState = str_replace($charChainToRemove, '', $cleanedApolloState);
             $cleanedApolloState = json_decode($cleanedApolloState, true);
             $videoInfo = $cleanedApolloState['defaultClient'] ?? null;
-            $videoInfo = '';
+            $video_url = '';
             if ($videoInfo) {
                 $key = "VisionVideoDetailPhoto:{$id}";
                 $json = $videoInfo[$key] ?? null;
