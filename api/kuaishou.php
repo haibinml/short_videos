@@ -57,15 +57,17 @@ function kuaishou($url)
             $cleanedApolloState = json_decode($cleanedApolloState, true);
             $videoInfo = $cleanedApolloState['defaultClient'] ?? null;
             $video_url = '';
-            if ($videoInfo) {
+            if (!empty($videoInfo) {
                 $key = "VisionVideoDetailPhoto:{$id}";
                 $json = $videoInfo[$key] ?? null;
                 if ($json) {
                     $video_url = $json['photoUrl'];
-                }
+            }else{
+                return null;
             }
         }
-        if ($video_url) {
+    }
+        if (!empty($video_url)) {
             $arr = array(
                 'code' => 200,
                 'msg' => '解析成功',
