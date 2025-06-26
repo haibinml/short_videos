@@ -2,11 +2,11 @@
 header('Content-type: application/json');
 /**
 *@Author: JH-Ahua
-*@CreateTime: 2025/6/19 上午1:23
+*@CreateTime: 2025/6/27 上午12:05
 *@email: admin@bugpk.com
 *@blog: www.jiuhunwl.cn
 *@Api: api.bugpk.com
-*@tip: 小红书短视频图集解析
+*@tip: 小红书视频图文聚合解析
 */
 header("Access-Control-Allow-Origin: *");
 // 获取请求参数
@@ -49,10 +49,13 @@ function xhs($url)
         $id = extractId($url);
     } else {
         $url = get_headers($url, 1)["Location"] ?? $url;
+        if (is_array($url)){
+            $url = $url[0];
+        }
         $id = extractId($url);
     }
     // 发送请求获取视频信息
-    $response = get_curl($url,$cookie);
+    $response = get_curl($url, $cookie);
     if (!$response) {
         return output(400, '请求失败');
     }
@@ -64,16 +67,43 @@ function xhs($url)
         $jsonData = str_replace('undefined', 'null', $jsonData);
         $decoded = json_decode($jsonData, true);
         if ($decoded) {
-            $videourl = $decoded['noteData']['data']['noteData']['video']['media']['stream']['h265'][0]['masterUrl'] ?? null;
-            $imageData = $decoded['note']['noteDetailMap'][$id]['note'] ?? null;
+            // 安全获取视频URL
+            $videoH264Url = safeGet($decoded, ['note', 'noteDetailMap', $id, 'note', 'video', 'media', 'stream', 'h264', 0, 'backupUrls', 0]);
+            $videoH265Url = safeGet($decoded, ['noteData', 'data', 'noteData', 'video', 'media', 'stream', 'h265', 0, 'masterUrl']);
+            $videourl = $videoH265Url ?: $videoH264Url;
+
+            // 获取图片数据（作为备用数据源）
+            $imageData = safeGet($decoded, ['note', 'noteDetailMap', $id, 'note']);
+
+            // 获取作者信息
+            $author = safeGet($decoded, ['noteData', 'data', 'noteData', 'user', 'nickName']);
+            $author = $author ?: safeGet($imageData, ['user', 'nickname'], '');
+
+            $authorID = safeGet($decoded, ['noteData', 'data', 'noteData', 'user', 'userId']);
+            $authorID = $authorID ?: safeGet($imageData, ['user', 'userId'], '');
+
+            // 获取标题和描述
+            $title = safeGet($decoded, ['noteData', 'data', 'noteData', 'title']);
+            $title = $title ?: safeGet($imageData, ['title'], '');
+
+            $desc = safeGet($decoded, ['noteData', 'data', 'noteData', 'desc']);
+            $desc = $desc ?: safeGet($imageData, ['desc']);
+            $desc = $desc ?: safeGet($decoded, ['note', 'noteDetailMap', $id, 'note'], '');
+
+            // 获取头像和封面
+            $avatar = safeGet($decoded, ['noteData', 'data', 'noteData', 'user', 'avatar']);
+            $avatar = $avatar ?: safeGet($imageData, ['user', 'avatar'], '');
+
+            $cover = safeGet($decoded, ['noteData', 'data', 'noteData', 'imageList', 0, 'url']);
+            $cover = $cover ?: safeGet($decoded, ['note', 'noteDetailMap', $id, 'note', 'imageList', 0, 'urlDefault'], '');
             if (!empty($videourl)) {
                 $data = [
-                    'author' => $decoded['noteData']['data']['noteData']['user']['nickName'] ?? '',
-                    'authorID' => $decoded['noteData']['data']['noteData']['user']['userId'] ?? '',
-                    'title' => $decoded['noteData']['data']['noteData']['title'] ?? '',
-                    'desc' => $decoded['noteData']['data']['noteData']['desc'] ?? '',
-                    'avatar' => $decoded['noteData']['data']['noteData']['user']['avatar'] ?? '',
-                    'cover' => $decoded['noteData']['data']['noteData']['imageList'][0]['url'] ?? '',
+                    'author' => $author,
+                    'authorID' => $authorID,
+                    'title' => $title,
+                    'desc' => $desc,
+                    'avatar' => $avatar,
+                    'cover' => $cover,
                     'url' => $videourl
                 ];
                 return output(200, '解析成功', $data);
@@ -87,12 +117,12 @@ function xhs($url)
                     }
                 }
                 $data = [
-                    'author' => $imageData['user']['nickname'] ?? '',
-                    'userId' => $imageData['user']['userId'] ?? '',
-                    'title' => $imageData['title'] ?? '',
-                    'desc' => $imageData['desc'] ?? '',
-                    'avatar' => $imageData['user']['avatar'] ?? '',
-                    'cover' => $imageData['imageList'][0]['urlPre'] ?? '',
+                    'author' => $author,
+                    'authorID' => $authorID,
+                    'title' => $title,
+                    'desc' => $desc,
+                    'avatar' => $avatar,
+                    'cover' => $cover,
                     'imgurl' => $imgurl
                 ];
                 return output(200, '解析成功', $data);
@@ -145,7 +175,16 @@ function get_curl($url, $cookie)
     curl_close($ch);
     return $output;
 }
-
+function safeGet(array $array, array $keys, $default = null) {
+    $current = $array;
+    foreach ($keys as $key) {
+        if (!isset($current[$key])) {
+            return $default;
+        }
+        $current = $current[$key];
+    }
+    return $current;
+}
 // 定义统一的输出函数
 function output($code, $msg, $data = [])
 {
