@@ -1,7 +1,7 @@
 <?php
 /**
 *@Author: JH-Ahua
-*@CreateTime: 2025/6/22 12:45
+ * @CreateTime: 2025/8/5 下午2:16
 *@email: admin@bugpk.com
 *@blog: www.jiuhunwl.cn
 *@Api: api.bugpk.com
@@ -23,28 +23,44 @@ function formatResponse($code = 200, $msg = '解析成功', $data = [])
 // 获取网页内容并解析 JSON 数据的函数
 function kuaishou($url)
 {
-    // 定义请求头
     $headers = [
         'Cookie: ',
         'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0'
     ];
     $newurl = getRedirectedUrl($url);
     $response = '';
+    $video_type = '';
+    // 原有模式
     $shortVideoPattern = '/short-video\/([^?]+)/';
     $photoPattern = '/photo\/([^?]+)/';
+    // 新增匹配long-video后的ID模式
+    $longVideoPattern = '/long-video\/([^?]+)/';
 
     if (preg_match($shortVideoPattern, $newurl, $matches)) {
+        $video_type = 'short-video';
         $id = $matches[1];
         $response = curl($url, $headers);
         while ($response === null) {
             $response = curl($url, $headers);
         }
+    } elseif (preg_match($longVideoPattern, $newurl, $matches)) {
+        $video_type = 'long-video';
+        $id = $matches[1];
+        // 这里根据实际需求调整请求链接，示例使用long-video路径
+        $response = curl("https://www.kuaishou.com/short-video/{$id}", $headers);
+        while ($response === null) {
+            $response = curl("https://www.kuaishou.com/short-video/{$id}", $headers);
+        }
     } elseif (preg_match($photoPattern, $newurl, $matches)) {
+        $video_type = 'photo';
         $id = $matches[1];
         $response = curl("https://www.kuaishou.com/short-video/{$id}", $headers);
         while ($response === null) {
             $response = curl("https://www.kuaishou.com/short-video/{$id}", $headers);
         }
+    }
+    if (empty($response)) {
+        $response = curl($url, $headers);
     }
     if ($response) {
         $apolloStatePattern = '/window\.__APOLLO_STATE__\s*=\s*(.*?)\<\/script>/s';
@@ -61,27 +77,28 @@ function kuaishou($url)
                 $key = "VisionVideoDetailPhoto:{$id}";
                 $json = $videoInfo[$key] ?? null;
                 if ($json) {
-                    $video_url = $json['photoUrl'];
+                    if ($video_type == "long-video") {
+                        $video_url = $json['manifestH265']['json']['adaptationSet'][0]['representation'][0]['backupUrl'][0];
+                    } else {
+                        $video_url = $json['photoUrl'];
+                    }
+
                 }
-            }else{
+            } else {
                 return null;
             }
         }
         if (!empty($video_url)) {
-            $arr = array(
-                'code' => 200,
-                'msg' => '解析成功',
-                'data' => array(
-                    'title' => $json['caption'],
-                    'cover' => $json['coverUrl'],
-                    'url' => $video_url,
-                )
+            $arr = array('title' => $json['caption'],
+                'cover' => $json['coverUrl'],
+                'url' => $video_url,
+                'api' => 1
             );
             return $arr;
-        }else{
+        } else {
             return null;
         }
-    }else{
+    } else {
         return null;
     }
 }
@@ -146,6 +163,6 @@ if (empty($url)) {
     if (isset($jsonData)) {
         echo json_encode(formatResponse(200, '解析成功', $jsonData), 480);
     } else {
-        echo json_encode(formatResponse(404, '链接错误'), 480);
+        echo json_encode(formatResponse(404, '链接错误1。'), 480);
     }
 }

@@ -1,7 +1,7 @@
 <?php
 /**
 *@Author: JH-Ahua
-*@CreateTime: 2025/6/17 下午5:00
+ * @CreateTime: 2025/8/5 下午2:13
 *@email: admin@bugpk.com
 *@blog: www.jiuhunwl.cn
 *@Api: api.bugpk.com
@@ -27,12 +27,12 @@ function douyin($url)
     preg_match($pattern, $response, $matches);
 
     if (empty($matches[1])) {
-        return array('code' => 201, 'msg' => '解析失败');
+        return array('code' => 201, 'msg' => '解析数据失败' . $response);
     }
 
     $videoInfo = json_decode(trim($matches[1]), true);
     if (!isset($videoInfo['loaderData'])) {
-        return array('code' => 201, 'msg' => '解析失败');
+        return array('code' => 201, 'msg' => '数据查找失败' . $response);
     }
     //替换 "playwm" 为 "play"
     $videoResUrl = str_replace('playwm', 'play', $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['video']['play_addr']['url_list'][0]);
@@ -49,28 +49,39 @@ function douyin($url)
             }
         }
     }
-    // 构造返回数据
-    $arr = array(
-        'code' => 200,
-        'msg' => '解析成功',
-        'data' => array(
-            'author' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['author']['nickname'],
-            'uid' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['author']['unique_id'],
-            'avatar' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['author']['avatar_medium']['url_list'][0],
-            'like' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['statistics']['digg_count'],
-            'time' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]["create_time"],
-            'title' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['desc'],
-            'cover' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['video']['cover']['url_list'][0],
-            'images' => $imgurl,
-            'url' => count($imgurl) > 0 ? '当前为图文解析，图文数量为:' . count($imgurl) . '张图片' : $videoResUrl,
-            'music' => array(
-                'title' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['music']['title'],
-                'author' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['music']['author'],
-                'avatar' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['music']['cover_large']['url_list'][0],
-                'url' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['video']['play_addr']['uri']
+    if (!empty($videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['music'])) {
+        $music = array(
+            'title' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['music']['title'],
+            'author' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['music']['author'],
+            'avatar' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['music']['cover_large']['url_list'][0],
+            'url' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['video']['play_addr']['uri'],
+        );
+    }
+    if (empty($videoResUrl) && empty($imgurl)) {
+        $arr = array(
+            'code' => 404,
+            'msg' => '当前分享链接已失效！',
+            'data' => [],
+        );
+    } else {
+        // 构造返回数据
+        $arr = array(
+            'code' => 200,
+            'msg' => '解析成功',
+            'data' => array(
+                'author' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['author']['nickname'],
+                'uid' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['author']['unique_id'],
+                'avatar' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['author']['avatar_medium']['url_list'][0],
+                'like' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['statistics']['digg_count'],
+                'time' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]["create_time"],
+                'title' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['desc'],
+                'cover' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['video']['cover']['url_list'][0],
+                'images' => !empty($imgurl) ? $imgurl : '当前为短视频解析模式',
+                'url' => count($imgurl) > 0 ? '当前为图文解析，图文数量为:' . count($imgurl) . '张图片' : $videoResUrl,
+                'music' => $music ?? '音乐为视频原声',
             )
-        )
-    );
+        );
+    }
     return $arr;
 }
 
@@ -126,6 +137,7 @@ function curl($url, $header = null, $data = null)
     curl_close($con);
     return $result;
 }
+
 
 // 使用空合并运算符检查 url 参数
 $url = $_GET['url'] ?? '';

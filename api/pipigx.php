@@ -1,13 +1,12 @@
 <?php
 /**
 *@Author: JH-Ahua
-*@CreateTime: 2025/5/8 下午11:49
+ * @CreateTime: 2025/8/5 下午2:19
 *@email: admin@bugpk.com
 *@blog: www.jiuhunwl.cn
 *@Api: api.bugpk.com
 *@tip: 皮皮搞笑去水印解析
 */
-header("Access-Control-Allow-Origin: *");
 // 设置响应头为 JSON 格式，使用 UTF-8 编码
 header("content-type:application/json; charset=utf-8");
 

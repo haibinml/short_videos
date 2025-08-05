@@ -93,3 +93,9 @@ https://api.bugpk.com/api/xxx.php?url=https://xxx.xxx/xxx
 **反馈邮箱**：[admin@bugpk.com](mailto:admin@bugpk.com)
 
 **GitHub**：[https://github.com/jiuhunwl](https://github.com/jiuhunwl)
+
+## 赞赏
+
+| 微信                  | 支付宝                    |
+|---------------------|------------------------|
+| ![微信](img/wxzs.jpg) | ![支付宝](/img/zfbzs.jpg) |

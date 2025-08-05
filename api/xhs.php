@@ -1,11 +1,17 @@
 <?php
+/**
+ * @Author: JH-Ahua
+ * @CreateTime: 2025/8/5 下午2:21
+ * @email: admin@bugpk.com
+ * @blog: www.jiuhunwl.cn
+ * @Api: api.bugpk.com
+ * @tip: 小红书视频去水印解析
+ */
 header("Access-Control-Allow-Origin: *");
 header('Content-type: application/json');
-// 开启错误报告
-// error_reporting(E_ALL);
-// ini_set('display_errors', 1);
 
-function output($code, $msg, $data = []) {
+function output($code, $msg, $data = [])
+{
     return json_encode([
         'code' => $code,
         'msg' => $msg,
@@ -13,38 +19,94 @@ function output($code, $msg, $data = []) {
     ], 480);
 }
 
-function xhs($url) {
+function xhs($url)
+{
     // 构造请求数据
     $header = [
         'User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1 Edg/122.0.0.0'
     ];
-
+    $cookie = "";
+    $domain = parse_url($url);
+    if ($domain['host'] == "www.xiaohongshu.com") {
+        $id = extractId($url);
+    } else {
+        $url = get_headers($url, 1)["Location"] ?? $url;
+        if (is_array($url)) {
+            $url = $url[0];
+        }
+        $id = extractId($url);
+    }
     // 发送请求获取视频信息
-    $response = curl($url, $header);
+    $response = get_curl($url, $cookie);
     if (!$response) {
         return output(400, '请求失败');
     }
-
-    // 优化正则表达式
     $pattern = '/<script>\s*window.__INITIAL_STATE__\s*=\s*({[\s\S]*?})<\/script>/is';
     if (preg_match($pattern, $response, $matches)) {
         $jsonData = $matches[1];
         // 将 undefined 替换为 null
         $jsonData = str_replace('undefined', 'null', $jsonData);
-
-        // 尝试将匹配到的字符串解析为 JSON
         $decoded = json_decode($jsonData, true);
         if ($decoded) {
-            $videourl = $decoded['noteData']['data']['noteData']['video']['media']['stream']['h265'][0]['masterUrl'] ?? '';
-            if ($videourl) {
+            // 安全获取视频URL
+            $videoH264Url = safeGet($decoded, ['note', 'noteDetailMap', $id, 'note', 'video', 'media', 'stream', 'h264', 0, 'backupUrls', 0]);
+            $videoH265Url = safeGet($decoded, ['noteData', 'data', 'noteData', 'video', 'media', 'stream', 'h265', 0, 'masterUrl']);
+            $videourl = $videoH265Url ?: $videoH264Url;
+
+            // 获取图片数据（作为备用数据源）
+            $imageData = safeGet($decoded, ['note', 'noteDetailMap', $id, 'note']);
+
+            // 获取作者信息
+            $author = safeGet($decoded, ['noteData', 'data', 'noteData', 'user', 'nickName']);
+            $author = $author ?: safeGet($imageData, ['user', 'nickname'], '');
+
+            $authorID = safeGet($decoded, ['noteData', 'data', 'noteData', 'user', 'userId']);
+            $authorID = $authorID ?: safeGet($imageData, ['user', 'userId'], '');
+
+            // 获取标题和描述
+            $title = safeGet($decoded, ['noteData', 'data', 'noteData', 'title']);
+            $title = $title ?: safeGet($imageData, ['title'], '');
+
+            $desc = safeGet($decoded, ['noteData', 'data', 'noteData', 'desc']);
+
+            $desc = $desc ?: safeGet($imageData, ['desc']);
+
+            $desc = $desc ?: safeGet($decoded, ['note', 'noteDetailMap', $id, 'note', 'desc'], '');
+
+            // 获取头像和封面
+            $avatar = safeGet($decoded, ['noteData', 'data', 'noteData', 'user', 'avatar']);
+            $avatar = $avatar ?: safeGet($imageData, ['user', 'avatar'], '');
+
+            $cover = safeGet($decoded, ['noteData', 'data', 'noteData', 'imageList', 0, 'url']);
+            $cover = $cover ?: safeGet($decoded, ['note', 'noteDetailMap', $id, 'note', 'imageList', 0, 'urlDefault'], '');
+            if (!empty($videourl)) {
                 $data = [
-                    'author' => $decoded['noteData']['data']['noteData']['user']['nickName'] ?? '',
-                    'authorID' => $decoded['noteData']['data']['noteData']['user']['userId'] ?? '',
-                    'title' => $decoded['noteData']['data']['noteData']['title'] ?? '',
-                    'desc' => $decoded['noteData']['data']['noteData']['desc'] ?? '',
-                    'avatar' => $decoded['noteData']['data']['noteData']['user']['avatar'] ?? '',
-                    'cover' => $decoded['noteData']['data']['noteData']['imageList'][0]['url'] ?? '',
+                    'author' => $author,
+                    'authorID' => $authorID,
+                    'title' => $title,
+                    'desc' => $desc,
+                    'avatar' => $avatar,
+                    'cover' => $cover,
                     'url' => $videourl
+                ];
+                return output(200, '解析成功', $data);
+            } elseif (!empty($imageData)) {
+                $imgurl = [];
+                foreach ($imageData['imageList'] as $item) {
+                    // 检查当前元素是否包含 url_list 标签
+                    if (isset($item['urlDefault'])) {
+                        // 将 url_list 的第一个值添加到 $imgurl 数组中
+                        $imgurl[] = $item['urlDefault'];
+                    }
+                }
+                $data = [
+                    'author' => $author,
+                    'authorID' => $authorID,
+                    'title' => $title,
+                    'desc' => $desc,
+                    'avatar' => $avatar,
+                    'cover' => $cover,
+                    'imgurl' => $imgurl
                 ];
                 return output(200, '解析成功', $data);
             } else {
@@ -54,37 +116,60 @@ function xhs($url) {
             return output(400, '匹配到的内容不是有效的 JSON 数据');
         }
     } else {
-        return output(400, '未找到 JSON 数据');
+        return output(400, '匹配json数据失败');
     }
 }
 
-function curl($url, $header = null, $data = null) {
-    $con = curl_init((string)$url);
-    curl_setopt($con, CURLOPT_HEADER, false);
-    curl_setopt($con, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($con, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($con, CURLOPT_FOLLOWLOCATION, 1);
-    curl_setopt($con, CURLOPT_AUTOREFERER, 1);
-    if ($header) {
-        curl_setopt($con, CURLOPT_HTTPHEADER, $header);
+function extractId($url)
+{
+    // 定义多个正则表达式模式以匹配不同格式的URL
+    $patterns = [
+        '/discovery\/item\/([a-zA-Z0-9]+)/',     // 原始模式
+        '/explore\/([a-zA-Z0-9]+)/',             // 匹配探索页面链接
+        '/item\/([a-zA-Z0-9]+)/',                // 匹配项目详情链接
+        '/note\/([a-zA-Z0-9]+)/',                // 匹配笔记链接
+    ];
+
+    // 依次尝试每个模式
+    $id = null;
+    foreach ($patterns as $pattern) {
+        preg_match($pattern, $url, $matches);
+        if (!empty($matches[1])) {
+            $id = $matches[1];
+            break;
+        }
     }
-    if ($data) {
-        curl_setopt($con, CURLOPT_POST, true);
-        curl_setopt($con, CURLOPT_POSTFIELDS, $data);
-    }
-    curl_setopt($con, CURLOPT_TIMEOUT, 5000);
-    $result = curl_exec($con);
-    if ($result === false) {
-        // 处理 curl 错误
-        $error = curl_error($con);
-        curl_close($con);
-        trigger_error("cURL error: $error", E_USER_WARNING);
-        return false;
-    }
-    curl_close($con);
-    return $result;
+
+    return $id;
 }
 
+function get_curl($url, $cookie)
+{
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_COOKIE, $cookie);
+    curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+    $output = curl_exec($ch);
+    curl_close($ch);
+    return $output;
+}
+
+function safeGet(array $array, array $keys, $default = null)
+{
+    $current = $array;
+    foreach ($keys as $key) {
+        if (!isset($current[$key])) {
+            return $default;
+        }
+        $current = $current[$key];
+    }
+    return $current;
+}
 
 // 获取请求参数
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -104,13 +189,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 // 检查必要参数
 if (empty($url)) {
     header('Content-Type: application/json');
-    echo json_encode(['error' => '必须提供url参数','Auther' => 'BugPk','website' => 'https://api.bugpk.com/'], 480);
+    echo json_encode(['error' => '必须提供url参数', 'Auther' => 'BugPk', 'website' => 'https://api.bugpk.com/'], 480);
     return;
 } else {
     $domain = parse_url($url);
-    if($domain['host']=="xhs.com"){
+    if ($domain['host'] == "xhs.com") {
         $parts = explode('/', $url);
-        $url = 'http://xhslink.com/a/'.$parts[4];
+        $url = 'http://xhslink.com/a/' . $parts[4];
     }
     echo xhs($url);
 }

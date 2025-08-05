@@ -1,7 +1,7 @@
 <?php
 /**
 *@Author: JH-Ahua
-*@CreateTime: 2025/5/8 下午11:49
+ * @CreateTime: 2025/8/5 下午2:19
 *@email: admin@bugpk.com
 *@blog: www.jiuhunwl.cn
 *@Api: api.bugpk.com
@@ -16,7 +16,8 @@ const MAX_REDIRECTS = 10;
 const CURL_TIMEOUT = 5000;
 
 // 初始化 CURL 选项
-function initCurlOptions($ch, $url, $header = null, $data = null) {
+function initCurlOptions($ch, $url, $header = null, $data = null)
+{
     curl_setopt($ch, CURLOPT_URL, (string)$url);
     curl_setopt($ch, CURLOPT_HEADER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -39,7 +40,8 @@ function initCurlOptions($ch, $url, $header = null, $data = null) {
 }
 
 // 获取重定向后的 URL
-function getRedirectUrl($url) {
+function getRedirectUrl($url)
+{
     $ch = curl_init();
     $ch = initCurlOptions($ch, $url);
     curl_setopt($ch, CURLOPT_NOBODY, true);
@@ -57,7 +59,8 @@ function getRedirectUrl($url) {
 }
 
 // 执行 CURL 请求
-function curl($url, $header = null, $data = null) {
+function curl($url, $header = null, $data = null)
+{
     $ch = curl_init();
     $ch = initCurlOptions($ch, $url, $header, $data);
 
@@ -72,9 +75,11 @@ function curl($url, $header = null, $data = null) {
     return $result;
 }
 
-function pipixia($url) {
+function pipixia($url)
+{
     try {
         $url = getRedirectUrl($url);
+        $newurl = getRedirectUrl($url);
         preg_match('/item\/(.*)\?/', $url, $id);
         if (!isset($id[1])) {
             return ['code' => 404, 'msg' => '无法从 URL 中提取视频 ID'];
@@ -89,16 +94,25 @@ function pipixia($url) {
         }
 
         if (is_array($arr) && isset($arr['data']['cell_comments'][1]['comment_info']['item'])) {
-            $video_url = $arr['data']['cell_comments'][1]['comment_info']['item']['video']['video_high']['url_list'][0]['url'];
+            $video_url = $arr['data']['cell_comments'][1]['comment_info']['item']['video']['video_high']['url_list'][0]['url'] ?? null;
+            $imageData = $arr['data']['cell_comments'][1]['comment_info']['item']['note'] ?? null;
+            $imgurl = [];
+            foreach ($imageData['multi_image'] as $item) {
+                if (isset($item['download_list'])) {
+                    $imgurl[] = $item['download_list'][0]['url'];
+                }
+            }
             $result = [
                 'code' => 200,
                 'msg' => '解析成功',
                 'data' => [
-                    'author' => $arr['data']['cell_comments'][1]['comment_info']['item']['author']['name'],
-                    'avatar' => $arr['data']['cell_comments'][1]['comment_info']['item']['author']['avatar']['download_list'][0]['url'],
-                    'title' => $arr['data']['cell_comments'][1]['comment_info']['item']['content'],
-                    'cover' => $arr['data']['cell_comments'][1]['comment_info']['item']['cover']['download_list'][0]['url'],
-                    'url' => $video_url
+                    'author' => $arr['data']['cell_comments'][1]['comment_info']['item']['author']['name'] ?? null,
+                    'avatar' => $arr['data']['cell_comments'][1]['comment_info']['item']['author']['avatar']['download_list'][0]['url'] ?? null,
+//                    'title' => $arr['data']['cell_comments'][1]['comment_info']['text'] ?? null,
+                    'title' => $arr['data']['cell_comments'][1]['comment_info']['item']['content'] ?? null,
+                    'cover' => $arr['data']['cell_comments'][1]['comment_info']['item']['cover']['download_list'][0]['url'] ?? null,
+                    'url' => $video_url,
+                    'imgurl' => $imgurl,
                 ]
             ];
             return $result;

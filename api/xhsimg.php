@@ -1,7 +1,7 @@
 <?php
 /**
  * @Author: JH-Ahua
- * @CreateTime: 2025/6/16 下午4:17
+ * @CreateTime: 2025/8/5 下午2:21
  * @email: admin@bugpk.com
  * @blog: www.jiuhunwl.cn
  * @Api: api.bugpk.com
@@ -23,12 +23,15 @@ function output($code, $msg, $data = [])
 function xhsimg($url)
 {
     // 构造请求数据
-    $cookie = "xhsTrackerId=e6018ab9-6936-4b02-cb65-a7f9f9e22ea0; xhsuid=y2PCwPFU9GCQnJH8; timestamp2=20210607d2293bcc8dcad65834920376; timestamp2.sig=QFn2Zv9pjUr07KDlnh886Yq43bZxOaT6t3WCzZdzcgM; xhsTracker=url=noteDetail&xhsshare=CopyLink; extra_exp_ids=gif_exp1,ques_exp2'";
+    $cookie = "";
     $domain = parse_url($url);
     if ($domain['host'] == "www.xiaohongshu.com") {
         $id = extractId($url);
     } else {
         $url = get_headers($url, 1)["Location"] ?? $url;
+        if (is_array($url)) {
+            $url = $url[0];
+        }
         $id = extractId($url);
     }
     // 发送请求获取视频信息
@@ -36,7 +39,6 @@ function xhsimg($url)
     if (!$response) {
         return output(400, '请求失败,请检查图文是否失效');
     }
-
     // 优化正则表达式
     $pattern = '/<script>\s*window.__INITIAL_STATE__\s*=\s*({[\s\S]*?})<\/script>/is';
     if (preg_match($pattern, $response, $matches)) {

@@ -7,12 +7,11 @@
  * @Api: api.bugpk.com
  * @tip: bilibili去水解析
  */
-
 header("Access-Control-Allow-Origin: *");
 header('Content-Type: application/json');
 $urls = isset($_GET['url']) ? $_GET['url'] : '';
 if (empty($urls)) {
-    exit(json_encode(['code' => 201, 'msg' => '链接不能为空！']));
+    exit(json_encode(['code' => 201, 'msg' => '链接不能为空！'], 480));
 }
 $urls = cleanUrlParameters($urls);
 $array = parse_url($urls);
@@ -36,7 +35,7 @@ if (strpos($bvid, '/video/') === false) {
 }
 $bvid = str_replace("/video/", "", $bvid);
 //这里填写你的B站cookie(不填解析不到1080P以上) 格式为_uuid=XXXXX
-$cookie = '_uuid=; buvid_fp=; buvid4=; bili_ticket=; bili_ticket_expires=1744561030; header_theme_version=CLOSE; enable_web_push=DISABLE; enable_feed_channel=ENABLE; home_feed_column=4; timeMachine=0; rpdid=B; SESSDATA=C; bili_jct=3c76680f1ff29d37080531b457a34e3a; DedeUserID=517554055; DedeUserID__ckMd5=; browser_resolution=1392-267; CURRENT_FNVAL=4048; sid=8tfv4npx';
+$cookie = '_uuid=;';
 $header = ['Content-type: application/json;charset=UTF-8'];
 $useragent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36';
 //获取解析需要的cid值和图片以及标题
@@ -48,42 +47,83 @@ $json1 = bilibili(
 );
 $array = json_decode($json1, true);
 if ($array['code'] == '0') {
-    //循环获取
-    foreach ($array['data']['pages'] as $keys => $pron) {
-        //对接上面获取cid值API来取得视频的直链
-        $json2 = bilibili(
-            "https://api.bilibili.com/x/player/playurl?otype=json&fnver=0&fnval=3&player=3&qn=112&bvid=" . $bvid . "&cid=" . $pron['cid'] . "&platform=html5&high_quality=1"
-            , $header
-            , $useragent
-            , $cookie
-        );
-        $array_2 = json_decode($json2, true);
-        $bilijson[] = [
-            'title' => $pron['part']
-            , 'duration' => $pron['duration']
-            , 'durationFormat' => gmdate('H:i:s', $pron['duration'] - 1)
-            , 'accept' => $array_2['data']['accept_description']
-            , 'video_url' => 'https://upos-sz-mirrorhw.bilivideo.com/' . explode('.bilivideo.com/', $array_2['data']['durl'][0]['url'])[1]
+    $title = $array['data']['title'];
+    $cover = $array['data']['pic'];
+    $desc = $array['data']['desc'];
+    $owner = $array['data']['owner'];
+
+    $videos = [];
+
+    // 循环获取所有分P的视频信息
+    foreach ($array['data']['pages'] as $index => $page) {
+        // 请求视频直链API
+        $apiUrl = "https://api.bilibili.com/x/player/playurl?otype=json&fnver=0&fnval=3&player=3&qn=112&bvid=" . $bvid . "&cid=" . $page['cid'] . "&platform=html5&high_quality=1";
+        $jsonResponse = bilibili($apiUrl, $header, $useragent, $cookie);
+
+        // 解析API返回的JSON数据
+        $videoInfo = json_decode($jsonResponse, true);
+
+        // 检查API响应是否正常
+        if (isset($videoInfo['data']['durl'][0]['url'])) {
+            $videoUrl = $videoInfo['data']['durl'][0]['url'];
+
+            // 提取真实视频地址（去除镜像前缀）
+            $realVideoUrl = preg_replace('/.*\.bilivideo\.com\//', 'https://upos-sz-mirrorhw.bilivideo.com/', $videoUrl);
+
+            $videos[] = [
+                'title' => $page['part'],
+                'duration' => $page['duration'],
+                'durationFormat' => gmdate('H:i:s', $page['duration'] - 1),
+                'url' => $realVideoUrl,
+                'index' => $index + 1
+            ];
+        } else {
+            // 记录获取失败的分P
+            $videos[] = [
+                'title' => $page['part'],
+                'error' => '无法获取视频链接',
+                'index' => $index + 1
+            ];
+        }
+    }
+    if ($index > 0) {
+        // 构建最终返回的JSON数据
+        $JSON = [
+            'code' => 200,
+            'msg' => '解析成功！',
+            'data' => [
+                'title' => $title,
+                'cover' => $cover,
+                'description' => $desc,
+                'url' => $realVideoUrl ?? null,
+                'user' => [
+                    'name' => $owner['name'],
+                    'avatar' => $owner['face']
+                ],
+                'videos' => $videos,
+                'totalVideos' => count($videos)
+            ]
         ];
+    } else {
+        $JSON = array(
+            'code' => 200,
+            'msg' => '解析成功！',
+            'data' => array(
+                'title' => $title,
+                'cover' => $cover,
+                'description' => $desc,
+                'url' => $realVideoUrl ?? null,
+                'user' => [
+                    'name' => $owner['name'],
+                    'avatar' => $owner['face']
+                ])
+        );
     }
 
-    $JSON = array(
-        'code' => 200,
-        'msg' => '解析成功！',
-        'data' => array(
-            'title' => $array['data']['title'],
-            'cover' => $array['data']['pic'],
-            'desc' => $array['data']['desc'],
-            'url' => $array_2['data']['durl'][0]['url'] ?? $bilijson['video_url'],
-            'user' => [
-                'name' => $array['data']['owner']['name']
-                , 'user_img' => $array['data']['owner']['face']
-            ])
-    );
 } else {
     $JSON = ['code' => 0, 'msg' => "解析失败！"];
 }
-exit(json_encode($JSON, 480));
+echo json_encode($JSON, 480);
 function bilibili($url, $header, $user_agent, $cookie)
 {
     $ch = curl_init();
