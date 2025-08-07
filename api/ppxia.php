@@ -98,8 +98,8 @@ function pipixia($url)
             $imageData = $arr['data']['cell_comments'][1]['comment_info']['item']['note'] ?? null;
             $imgurl = [];
             foreach ($imageData['multi_image'] as $item) {
-                if (isset($item['download_list'])) {
-                    $imgurl[] = $item['download_list'][0]['url'];
+                if (isset($item['url_list'])) {
+                    $imgurl[] = $item['url_list'][0]['url'];
                 }
             }
             $result = [
@@ -110,7 +110,7 @@ function pipixia($url)
                     'avatar' => $arr['data']['cell_comments'][1]['comment_info']['item']['author']['avatar']['download_list'][0]['url'] ?? null,
 //                    'title' => $arr['data']['cell_comments'][1]['comment_info']['text'] ?? null,
                     'title' => $arr['data']['cell_comments'][1]['comment_info']['item']['content'] ?? null,
-                    'cover' => $arr['data']['cell_comments'][1]['comment_info']['item']['cover']['download_list'][0]['url'] ?? null,
+                    'cover' => $arr['data']['cell_comments'][1]['comment_info']['item']['cover']['url_list'][0]['url'] ?? null,
                     'url' => $video_url,
                     'imgurl' => $imgurl,
                 ]
