@@ -1,5 +1,5 @@
 <div align="center">
-  <img width="100px" alt="logo" src="https://img.jiuhunwl.cn/up/2025/05/23/68305545df6d7.png"/></a>
+  <img width="100px" alt="logo" src="img/icon.png"/></a>
   <p><em>短视频去水印解析接口源码</em></p>
 <div>
   <a href="https://github.com/OpenListTeam/jiuhunwl/short_videos/main/LICENSE">
@@ -94,8 +94,8 @@ https://api.bugpk.com/api/xxx.php?url=https://xxx.xxx/xxx
 
 **GitHub**：[https://github.com/jiuhunwl](https://github.com/jiuhunwl)
 
-## 赞赏
+## 公众号
 
-| 微信                  | 支付宝                    |
-|---------------------|------------------------|
-| ![微信](img/wxzs.jpg) | ![支付宝](/img/zfbzs.jpg) |
+| 微信公众号                 | |
+|-----------------------|-|
+| ![微信公众号](img/gzh.jpg) | |
