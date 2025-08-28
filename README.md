@@ -94,8 +94,8 @@ https://api.bugpk.com/api/xxx.php?url=https://xxx.xxx/xxx
 
 **GitHub**：[https://github.com/jiuhunwl](https://github.com/jiuhunwl)
 
-## 赞赏
+## 公众号
 
-| 微信                  | 支付宝                    |
+| 微信公众号                  ||
 |---------------------|------------------------|
-| ![微信](img/wxzs.jpg) | ![支付宝](/img/zfbzs.jpg) |
+| ![微信公众号](img/gzh.jpg) ||
