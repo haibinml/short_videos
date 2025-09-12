@@ -8,8 +8,6 @@
  * @blog: www.jiuhunwl.cn
  * @Api: api.bugpk.com
  */
-//require_once "ipCheck.php";
-require_once "kscookie.php";
 // 跨域与响应头设置
 header("Access-Control-Allow-Origin: *");
 header('Content-Type: application/json; charset=utf-8');
