@@ -1,11 +1,11 @@
 <?php
 /**
  * @Author: JH-Ahua
- * @CreateTime: 2025/6/17 下午5:00
+ * @CreateTime: 2025/10/24 下午10:34
  * @email: admin@bugpk.com
  * @blog: www.jiuhunwl.cn
  * @Api: api.bugpk.com
- * @tip: 抖音视频图集去水印解析
+ * @tip: 今日头条去水印解析
  */
 header("Access-Control-Allow-Origin: *");
 header('Content-type: application/json');
@@ -32,8 +32,7 @@ function toutiao($url)
 // 查找起始位置
     $pos_start = strpos($response, $start_str);
     if ($pos_start === false) {
-        // 如果没找到起始位置，返回错误响应，这里调用create_standard_response函数，假设其已正确定义
-        return create_standard_response(false, "", [], "无法找到数据");
+        return ['code' => 404, 'msg' => '无法找到数据'];
     }
 
 // 获取起始位置之后的文本内容
@@ -42,7 +41,7 @@ function toutiao($url)
     $pos_end = strpos($json_str, $end_str);
     if ($pos_end === false) {
         // 如果没找到结束位置，返回错误响应
-        return create_standard_response(false, "", [], "无法正确提取JSON数据，未找到结束标签");
+        return ['code' => 404, 'msg' => '无法正确提取JSON数据，未找到结束标签'];
     }
 
 // 截取中间的JSON字符串部分
@@ -54,7 +53,7 @@ function toutiao($url)
     $videoInfo = json_decode($json_str, true);
     if ($videoInfo === null && json_last_error() !== JSON_ERROR_NONE) {
         // 如果JSON解析失败，返回错误响应
-        return create_standard_response(false, "", [], "JSON解析失败：" . json_last_error_msg());
+        return ['code' => 404, 'msg' => 'JSON解析失败：' . json_last_error_msg()];
     }
     $data = $videoInfo['data'];
     if (empty($data) && empty($data['itemId'])) {
