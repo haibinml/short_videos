@@ -121,6 +121,7 @@ function extractFromInitState(string $pageContent): ?array
         'code' => 200,
         'msg' => 'success',
         'data' => array(
+            'title' => $firstItem['photo']['caption'],
             'auther' => $firstItem['photo']['userName'] ?? '',
             'count' => count($imageList),
             'music' => 'http://txmov2.a.kwimgs.com' . ($firstItem['photo']['ext_params']['atlas']['music'] ?? ''),

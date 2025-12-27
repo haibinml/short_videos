@@ -53,6 +53,7 @@ function kuaishou($url)
                 'code' => 200,
                 'msg' => 'success',
                 'data' => array(
+                    'title' => $imgjson['photo']['caption'],
                     'count' => count($imageList),
                     'music' => $music,
                     'images' => $images,
