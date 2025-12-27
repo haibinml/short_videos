@@ -94,6 +94,8 @@ if ($array['code'] == '0') {
             'data' => [
                 'title' => $title,
                 'cover' => $cover,
+                'author' => $owner['name'],
+                'avatar' => $owner['face'],
                 'description' => $desc,
                 'url' => $realVideoUrl ?? null,
                 'user' => [
