@@ -1,13 +1,13 @@
 <?php
 /**
- * 快手链接图片/视频信息提取工具
- *
  * @Author: JH-Ahua
- * @CreateTime: 2025/5/9 上午12:18
+ * @CreateTime: 2025/12/27 下午8:02
  * @email: admin@bugpk.com
  * @blog: www.jiuhunwl.cn
  * @Api: api.bugpk.com
+ * @tip: 快手链接图片/视频信息提取工具
  */
+
 // 跨域与响应头设置
 header("Access-Control-Allow-Origin: *");
 header('Content-Type: application/json; charset=utf-8');
@@ -17,7 +17,6 @@ define('USER_AGENT', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.
 define('COOKIE', '');
 define('CURL_TIMEOUT', 5000);
 define('JSON_OPTIONS', 480);
-
 
 /**
  * 处理快手链接，提取图片/视频信息
@@ -111,7 +110,6 @@ function extractFromInitState(string $pageContent): ?array
     if (empty($filteredData)) {
         return null;
     }
-
     $firstItem = reset($filteredData);
     $imageList = $firstItem['photo']['ext_params']['atlas']['list'] ?? [];
 
@@ -123,6 +121,7 @@ function extractFromInitState(string $pageContent): ?array
         'code' => 200,
         'msg' => 'success',
         'data' => array(
+            'auther' => $firstItem['photo']['userName'] ?? '',
             'count' => count($imageList),
             'music' => 'http://txmov2.a.kwimgs.com' . ($firstItem['photo']['ext_params']['atlas']['music'] ?? ''),
             'images' => array_map(function ($path) {
@@ -164,13 +163,24 @@ function extractFromApolloState(string $pageContent, string $contentId, string $
     if (empty($videoInfo)) {
         return null;
     }
-
     $key = "VisionVideoDetailPhoto:{$contentId}";
     $videoData = $videoInfo[$key] ?? null;
     if (empty($videoData)) {
         return null;
     }
+    $authorData = null;
 
+// 遍历 $videoInfo 数组，模糊匹配前缀为 VisionVideoDetailAuthor: 的键
+    foreach ($videoInfo as $key => $value) {
+        // 核心：判断键名是否以 VisionVideoDetailAuthor: 开头
+        if (str_starts_with($key, 'VisionVideoDetailAuthor:')) {
+            $authorData = $value; // 匹配到则赋值
+            break; // 只取第一个匹配的结果，避免多值干扰
+        }
+    }
+
+// 最终取值（和你原逻辑一致，无值则为 null）
+    $authorData = $authorData ?? null;
     // 提取视频URL
     $videoUrl = '';
     if ($contentType === 'long-video') {
@@ -187,6 +197,7 @@ function extractFromApolloState(string $pageContent, string $contentId, string $
         'code' => 200,
         'msg' => '解析成功',
         'data' => [
+            'author' => $authorData['name'] ?? '',
             'title' => $videoData['caption'] ?? '',
             'cover' => $videoData['coverUrl'] ?? '',
             'url' => $videoUrl
