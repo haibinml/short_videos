@@ -95,7 +95,7 @@ function douyin($url)
             'title' => $videoDetail['desc'],
             'cover' => $videoDetail['video']['cover'],
             'images' => $images,
-            'url' => $url,
+            'url' => 'https://svproxy.168299.xyz/?proxyurl=' . base64_encode($url),
             'music' => [
                 'title' => $videoDetail['music']['musicName'] ?? null,
                 'author' => $videoDetail['music']['ownerNickname'] ?? null,
