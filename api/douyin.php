@@ -76,7 +76,7 @@ function douyin($url)
                     // 将 url_list 的第一个值添加到 $imgurl 数组中
                     $images[] = $item['urlList'][0];
                     if (!empty($item['video']['playApi'])) {
-                        $url[] = $item['video']['playApi'];
+                        $url[] = 'https://svproxy.168299.xyz/?proxyurl=' . base64_encode($item['video']['playApi']);
                     }
                 }
             }
@@ -95,7 +95,7 @@ function douyin($url)
             'title' => $videoDetail['desc'],
             'cover' => $videoDetail['video']['cover'],
             'images' => $images,
-            'url' => 'https://svproxy.168299.xyz/?proxyurl=' . base64_encode($url),
+            'url' => $url,
             'music' => [
                 'title' => $videoDetail['music']['musicName'] ?? null,
                 'author' => $videoDetail['music']['ownerNickname'] ?? null,
