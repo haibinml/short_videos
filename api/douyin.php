@@ -1,7 +1,7 @@
 <?php
 /**
  * @Author: JH-Ahua
- * @CreateTime: 2025/10/11 上午12:42
+ * @CreateTime: 2025/12/29 下午5:30
  * @email: admin@bugpk.com
  * @blog: www.jiuhunwl.cn
  * @Api: api.bugpk.com
@@ -65,6 +65,7 @@ function douyin($url)
         $url = $videoDetail['video']['bitRateList'][0]['playAddr'][1]['src'];
         if (empty($url)) {
             $url = 'https://aweme.snssdk.com/aweme/v1/play/?video_id=' . $data['app']['videoDetail']['video']['uri'] . '&ratio=720p&line=0';
+            $url = 'https://svproxy.168299.xyz/?proxyurl=' . base64_encode($url);
         }
     } else {
         $url = [];
