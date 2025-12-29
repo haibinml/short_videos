@@ -104,6 +104,8 @@ if ($array['code'] == '0') {
             'data' => [
                 'title' => $title,
                 'cover' => $cover,
+                'auther' =>$owner['name'],
+                'avatar' =>$owner['face'],
                 'description' => $desc,
                 'url' => $realVideoUrl ?? null,
                 'user' => [
@@ -121,6 +123,8 @@ if ($array['code'] == '0') {
             'data' => array(
                 'title' => $title,
                 'cover' => $cover,
+                'auther' =>$owner['name'],
+                'avatar' =>$owner['face'],
                 'description' => $desc,
                 'url' => $realVideoUrl ?? null,
                 'user' => [
