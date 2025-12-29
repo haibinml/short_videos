@@ -1,7 +1,7 @@
 <?php
 /**
  * @Author: JH-Ahua
- * @CreateTime: 2025/12/29 上午17:17
+ * @CreateTime: 2025/12/29 下午5:30
  * @email: admin@bugpk.com
  * @blog: www.jiuhunwl.cn
  * @Api: api.bugpk.com
@@ -65,6 +65,7 @@ function douyin($url)
         $url = $videoDetail['video']['bitRateList'][0]['playAddr'][1]['src'];
         if (empty($url)) {
             $url = 'https://aweme.snssdk.com/aweme/v1/play/?video_id=' . $data['app']['videoDetail']['video']['uri'] . '&ratio=720p&line=0';
+            $url = 'https://svproxy.168299.xyz/?proxyurl=' . base64_encode($url);
         }
     } else {
         $url = [];
@@ -76,7 +77,7 @@ function douyin($url)
                     // 将 url_list 的第一个值添加到 $imgurl 数组中
                     $images[] = $item['urlList'][0];
                     if (!empty($item['video']['playApi'])) {
-                        $url[] = $item['video']['playApi'];
+                        $url[] = 'https://svproxy.168299.xyz/?proxyurl=' . base64_encode($item['video']['playApi']);
                     }
                 }
             }
@@ -95,7 +96,7 @@ function douyin($url)
             'title' => $videoDetail['desc'],
             'cover' => $videoDetail['video']['cover'],
             'images' => $images,
-            'url' => 'https://svproxy.168299.xyz/?proxyurl=' . base64_encode($url),
+            'url' => $url,
             'music' => [
                 'title' => $videoDetail['music']['musicName'] ?? null,
                 'author' => $videoDetail['music']['ownerNickname'] ?? null,
