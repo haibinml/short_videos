@@ -1,7 +1,7 @@
 <?php
 /**
  * @Author: JH-Ahua
- * @CreateTime: 2025/12/27 下午2:37
+ * @CreateTime: 2025/10/11 上午12:42
  * @email: admin@bugpk.com
  * @blog: www.jiuhunwl.cn
  * @Api: api.bugpk.com
@@ -21,7 +21,7 @@ function douyin($url)
     $id = extractId($url);
     // 检查 ID 是否有效
     if (empty($id)) {
-        return array('code' => 400, 'msg' => '1无法解析视频 ID');
+        return array('code' => 400, 'msg' => '无法解析视频 ID');
     }
 
     // 发送请求获取视频信息
@@ -33,7 +33,7 @@ function douyin($url)
     $pos_start = strpos($response, $start_str);
     if ($pos_start === false) {
         // 如果没找到起始位置，返回错误响应，这里调用create_standard_response函数，假设其已正确定义
-        return ['code' => 404, 'msg' => '1无法找到数据'];
+        return ['code' => 404, 'msg' => '无法找到数据'];
     }
 
     // 获取起始位置之后的文本内容
@@ -42,7 +42,7 @@ function douyin($url)
     $pos_end = strpos($json_str, $end_str);
     if ($pos_end === false) {
         // 如果没找到结束位置，返回错误响应
-        return ['code' => 404, 'msg' => '1无法正确提取JSON数据，未找到结束标签'];
+        return ['code' => 404, 'msg' => '无法正确提取JSON数据，未找到结束标签'];
     }
 
 // 截取中间的JSON字符串部分
@@ -54,9 +54,10 @@ function douyin($url)
     $data = json_decode($json_str, true);
     if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
         // 如果JSON解析失败，返回错误响应
-        return ['code' => 404, 'msg' => '1JSON解析失败：' . json_last_error_msg()];
+        return ['code' => 404, 'msg' => 'JSON解析失败：' . json_last_error_msg()];
     }
     $videoDetail = $data['app']['videoDetail'];
+
     $imgjson = $videoDetail['images'];
     $images = [];
     $uri = $data['app']['videoDetail']['video']['uri'];
@@ -84,7 +85,7 @@ function douyin($url)
 
     $arr = array(
         'code' => 200,
-        'msg' => '解析完成1',
+        'msg' => '解析完成',
         'data' => [
             'auther' => $videoDetail['authorInfo']['nickname'],
             'uid' => $videoDetail['authorInfo']['uid'],
@@ -94,15 +95,14 @@ function douyin($url)
             'title' => $videoDetail['desc'],
             'cover' => $videoDetail['video']['cover'],
             'images' => $images,
-            'url' => 'https://api.bugpk.com/api/douyin?proxyurl=' . base64_encode($url),
+            'url' => $url,
             'music' => [
                 'title' => $videoDetail['music']['musicName'] ?? null,
                 'author' => $videoDetail['music']['ownerNickname'] ?? null,
                 'avatar' => $videoDetail['music']['avatarThumb']['urlList'][0] ?? null,
                 'url' => $videoDetail['video']['uri'] ?? $videoDetail['music']['playUrl']['uri'] ?? null,
             ],
-        ],
-        'api' => 1
+        ]
     );
     return $arr;
 }
@@ -164,11 +164,11 @@ function curl($url, $header = null, $data = null)
 // 使用空合并运算符检查 url 参数
 $url = $_GET['url'] ?? '';
 if (empty($url)) {
-    echo json_encode(['code' => 201, 'msg' => 'url为空1'], 480);
+    echo json_encode(['code' => 201, 'msg' => 'url为空'], 480);
 } else {
     $response = douyin($url);
     if (empty($response)) {
-        echo json_encode(['code' => 404, 'msg' => '获取失败1'], 480);
+        echo json_encode(['code' => 404, 'msg' => '获取失败'], 480);
     } else {
         echo json_encode($response, 480);
     }
