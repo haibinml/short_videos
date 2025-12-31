@@ -59,8 +59,6 @@ function xhs($url)
     if (!$response) {
         return output(400, '请求失败');
     }
-    echo $response;
-    exit;
     // 优化正则表达式
     $pattern = '/<script>\s*window.__INITIAL_STATE__\s*=\s*({[\s\S]*?})<\/script>/is';
     if (preg_match($pattern, $response, $matches)) {
