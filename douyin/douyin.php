@@ -31,7 +31,7 @@ if (!$url && isset($_GET['url'])) {
 }
 
 // 配置Cookie (建议定期更新)
-$cookie = "t";
+$cookie = "";
 
 $parser = new DouyinParser();
 $parser->setCookie($cookie);
