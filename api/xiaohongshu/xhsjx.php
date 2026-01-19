@@ -1,6 +1,11 @@
 <?php
 /**
- * 小红书解析统一接口
+ * @Author: JH-Ahua
+ * @CreateTime: 2026/1/19 下午8:58
+ * @email: admin@bugpk.com
+ * @blog: www.jiuhunwl.cn
+ * @Api: api.bugpk.com
+ * @tip: 小红书解析统一接口
  */
 
 require_once 'XiaohongshuParser.php';
