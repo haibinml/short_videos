@@ -52,7 +52,7 @@ class XiaohongshuParser
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        
+
         $headers = array_merge($this->headers, $customHeaders);
         if ($this->cookie) {
             curl_setopt($ch, CURLOPT_COOKIE, $this->cookie);
@@ -90,7 +90,7 @@ class XiaohongshuParser
 
         // 抑制错误输出，防止域名无法解析时报错
         $headers = @get_headers($url, 1);
-        
+
         if (isset($headers['Location'])) {
             $location = $headers['Location'];
             // 如果是数组（多次跳转），通常第一个就是目标链接，后续可能是跳转到登录页
@@ -106,11 +106,11 @@ class XiaohongshuParser
             }
             return $location;
         }
-        
+
         // 方案二：如果 get_headers 失败，尝试 cURL 作为备选
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent); 
+        curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_HEADER, true);
@@ -118,7 +118,7 @@ class XiaohongshuParser
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        
+
         curl_exec($ch);
         $realUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
         curl_close($ch);
@@ -182,7 +182,7 @@ class XiaohongshuParser
 
         // 尝试直接匹配JSON
         $data = $this->extractJson($response, $id);
-        
+
         // 如果直接匹配失败，尝试xhslive.php中的高级策略（获取token后请求API）
         if (!$data) {
             $token = '';
@@ -224,7 +224,7 @@ class XiaohongshuParser
             // 尝试获取笔记详情
             // 路径1: note -> noteDetailMap -> id -> note
             $note = $json['note']['noteDetailMap'][$id]['note'] ?? null;
-            
+
             // 路径2: noteData -> data -> noteData
             if (!$note) {
                 $note = $json['noteData']['data']['noteData'] ?? null;
@@ -242,8 +242,14 @@ class XiaohongshuParser
      */
     private function formatNoteData($note)
     {
+        $type = $note['type'] ?? 'unknown';
+        // 标准化类型: normal -> image
+        if ($type === 'normal') {
+            $type = 'image';
+        }
+
         $result = [
-            'type' => $note['type'] ?? 'unknown', // video 或 normal (图文)
+            'type' => $type, // video, image, live
             'title' => $note['title'] ?? '',
             'desc' => $note['desc'] ?? '',
             'author' => [
@@ -265,14 +271,14 @@ class XiaohongshuParser
 
             // 提取所有可用的视频流
             $streams = [];
-            
+
             // 优先收集 h265 (通常无水印且画质更好)
             if (isset($note['video']['media']['stream']['h265']) && is_array($note['video']['media']['stream']['h265'])) {
                 foreach ($note['video']['media']['stream']['h265'] as $stream) {
                     $streams[] = $stream;
                 }
             }
-            
+
             // 其次收集 h264
             if (isset($note['video']['media']['stream']['h264']) && is_array($note['video']['media']['stream']['h264'])) {
                 foreach ($note['video']['media']['stream']['h264'] as $stream) {
@@ -291,7 +297,7 @@ class XiaohongshuParser
 
                 // 取最高画质为主链接
                 $videoUrl = $streams[0]['masterUrl'] ?? null;
-                
+
                 // 取第二高画质为备用链接 (如果存在)
                 if (count($streams) > 1) {
                     $videoBackup = $streams[1]['masterUrl'] ?? null;
@@ -302,7 +308,7 @@ class XiaohongshuParser
             if (!$videoUrl && isset($note['video']['consumer']['originVideoKey'])) {
                 $videoUrl = 'http://sns-video-bd.xhscdn.com/' . $note['video']['consumer']['originVideoKey'];
             }
-            
+
             $result['url'] = $videoUrl;
             $result['video_backup'] = $videoBackup; // 新增备用链接字段
         }
@@ -333,6 +339,11 @@ class XiaohongshuParser
                         'video' => $liveVideoUrl
                     ];
                 }
+            }
+
+            // 如果提取到了实况视频，修正类型为实况
+            if (!empty($result['live_photo'])) {
+                $result['type'] = 'live';
             }
         }
 

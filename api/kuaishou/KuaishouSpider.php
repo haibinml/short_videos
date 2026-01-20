@@ -101,7 +101,7 @@ class KuaishouSpider
                 'code' => 200,
                 'msg' => 'success',
                 'data' => [
-                    'type' => 'images',
+                    'type' => 'image',
                     'title' => $photo['caption'] ?? '',
                     'author' => $photo['userName'] ?? '',
                     'avatar' => $photo['headUrl'] ?? '',
@@ -223,11 +223,17 @@ class KuaishouSpider
             return null;
         }
 
+        // 根据 contentType 确定资源类型
+        $type = 'video';
+        if ($contentType === 'photo') {
+            $type = 'image';
+        }
+
         return [
             'code' => 200,
             'msg' => '解析成功',
             'data' => [
-                'type' => 'video',
+                'type' => $type,
                 'author' => $authorData['name'] ?? '',
                 'avatar' => $authorData['headerUrl'] ?? '', // APOLLO STATE 可能字段不同，这里做个假设，或者暂时留空
                 'title' => $videoData['caption'] ?? '',
