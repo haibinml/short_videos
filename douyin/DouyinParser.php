@@ -1,7 +1,11 @@
 <?php
 /**
- * DouyinParser - 抖音解析类
- * 整合视频、图文、图集、实况解析
+ * @Author: JH-Ahua
+ * @CreateTime: 2026/1/23 下午3:38
+ * @email: admin@bugpk.com
+ * @blog: www.jiuhunwl.cn
+ * @Api: api.bugpk.com
+ * @tip: 整合视频、图文、图集、实况解析
  */
 
 class DouyinParser
@@ -30,44 +34,6 @@ class DouyinParser
     }
 
     /**
-     * 主解析方法
-     */
-    public function parse($url)
-    {
-        if (empty($url)) {
-            return $this->output(400, '请输入抖音链接');
-        }
-
-        // 预处理域名
-        $domain = parse_url($url, PHP_URL_HOST);
-        // 如果是短链接域名或不包含 video/modal_id 等特征，尝试获取重定向链接
-        if ($domain == 'v.douyin.com' || strpos($url, 'douyin.com') === false || !$this->extractId($url)) {
-            $url = $this->getRealUrl($url);
-        }
-
-        $id = $this->extractId($url);
-        if (!$id) {
-            return $this->output(400, '链接格式错误，无法提取ID。处理后的链接: ' . $url);
-        }
-
-        // 使用 dylive.php 中的 API 接口方式获取数据 (通常比页面解析更稳定)
-        // 注意：这里需要有效的 Cookie
-        $apiUrl = 'https://www.douyin.com/user/self?modal_id=' . $id . '&showTab=like';
-        $response = $this->request($apiUrl);
-
-        if (!$response) {
-            return $this->output(500, '请求失败');
-        }
-
-        $data = $this->extractJson($response);
-        if ($data) {
-            return $this->formatData($data);
-        }
-
-        return $this->output(404, '解析失败，未找到有效内容');
-    }
-
-    /**
      * 统一输出函数
      */
     private function output($code, $msg, $data = [])
@@ -80,25 +46,38 @@ class DouyinParser
     }
 
     /**
-     * 提取ID
+     * 发送HTTP请求
      */
-    private function extractId($url)
+    private function request($url, $customHeaders = [], $returnHeader = false)
     {
-        // 匹配 URL 中的数字 ID (通常是 video/xxx 或 modal_id=xxx)
-        if (preg_match('/\/video\/(\d+)/', $url, $matches)) {
-            return $matches[1];
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+        $headers = array_merge($this->headers, $customHeaders);
+        if ($this->cookie) {
+            curl_setopt($ch, CURLOPT_COOKIE, $this->cookie);
         }
-        if (preg_match('/modal_id=(\d+)/', $url, $matches)) {
-            return $matches[1];
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        if ($returnHeader) {
+            curl_setopt($ch, CURLOPT_HEADER, true);
+            curl_setopt($ch, CURLOPT_NOBODY, true);
         }
-        if (preg_match('/note\/(\d+)/', $url, $matches)) {
-            return $matches[1];
+
+        $response = curl_exec($ch);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($error) {
+            return false;
         }
-        // 尝试匹配纯数字 (防止某些短链解开后直接是ID)
-        if (preg_match('/^(\d+)$/', $url, $matches)) {
-            return $matches[1];
-        }
-        return null;
+        return $response;
     }
 
     /**
@@ -150,38 +129,63 @@ class DouyinParser
     }
 
     /**
-     * 发送HTTP请求
+     * 提取ID
      */
-    private function request($url, $customHeaders = [], $returnHeader = false)
+    private function extractId($url)
     {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-
-        $headers = array_merge($this->headers, $customHeaders);
-        if ($this->cookie) {
-            curl_setopt($ch, CURLOPT_COOKIE, $this->cookie);
+        // 匹配 URL 中的数字 ID (通常是 video/xxx 或 modal_id=xxx)
+        if (preg_match('/\/video\/(\d+)/', $url, $matches)) {
+            return $matches[1];
         }
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        if (preg_match('/modal_id=(\d+)/', $url, $matches)) {
+            return $matches[1];
+        }
+        if (preg_match('/note\/(\d+)/', $url, $matches)) {
+            return $matches[1];
+        }
+        // 尝试匹配纯数字 (防止某些短链解开后直接是ID)
+        if (preg_match('/^(\d+)$/', $url, $matches)) {
+            return $matches[1];
+        }
+        return null;
+    }
 
-        if ($returnHeader) {
-            curl_setopt($ch, CURLOPT_HEADER, true);
-            curl_setopt($ch, CURLOPT_NOBODY, true);
+    /**
+     * 主解析方法
+     */
+    public function parse($url)
+    {
+        if (empty($url)) {
+            return $this->output(400, '请输入抖音链接');
         }
 
-        $response = curl_exec($ch);
-        $error = curl_error($ch);
-        curl_close($ch);
-
-        if ($error) {
-            return false;
+        // 预处理域名
+        $domain = parse_url($url, PHP_URL_HOST);
+        // 如果是短链接域名或不包含 video/modal_id 等特征，尝试获取重定向链接
+        if ($domain == 'v.douyin.com' || strpos($url, 'douyin.com') === false || !$this->extractId($url)) {
+            $url = $this->getRealUrl($url);
         }
-        return $response;
+
+        $id = $this->extractId($url);
+        if (!$id) {
+            return $this->output(400, '链接格式错误，无法提取ID。处理后的链接: ' . $url);
+        }
+
+        // 使用 dylive.php 中的 API 接口方式获取数据 (通常比页面解析更稳定)
+        // 注意：这里需要有效的 Cookie
+        $apiUrl = 'https://www.douyin.com/user/self?modal_id=' . $id . '&showTab=like';
+        $response = $this->request($apiUrl);
+
+        if (!$response) {
+            return $this->output(500, '请求失败');
+        }
+
+        $data = $this->extractJson($response);
+        if ($data) {
+            return $this->formatData($data);
+        }
+
+        return $this->output(404, '解析失败，未找到有效内容');
     }
 
     /**
@@ -233,11 +237,6 @@ class DouyinParser
      */
     private function formatData($detail)
     {
-        // 区分数据来源结构 (RENDER_DATA vs ROUTER_DATA)
-        // 这里假设 extractJson 返回的是统一的 item 结构 (videoDetail 或 item_list[0])
-
-        // 兼容 RENDER_DATA 的 videoDetail 结构
-        // 兼容 ROUTER_DATA 的 item_list[0] 结构 (两者结构基本一致)
         $result = [
             'type' => 'unknown',
             'title' => $detail['desc'] ?? '',
@@ -312,12 +311,44 @@ class DouyinParser
 
                 // 提取实况视频 (Live Photo)
                 // 抖音实况通常在 images 列表的 item 中包含 video 字段 (与普通图文不同)
-                // 结构可能是: $img['video']['play_addr']['url_list'][0]
                 $liveVideoUrl = null;
-                if (isset($img['video']['play_addr']['url_list'][0])) {
-                    $liveVideoUrl = $img['video']['play_addr']['url_list'][0];
-                } elseif (isset($img['video']['playApi'])) {
-                    $liveVideoUrl = $img['video']['playApi'];
+                $videoInfo = $img['video'] ?? [];
+
+                // 1. 尝试 playAddr (对象数组结构，如 dylive.json)
+                if (isset($videoInfo['playAddr']) && is_array($videoInfo['playAddr'])) {
+                    $liveVideoUrl = null;
+                    // 优先匹配包含 v3-web 的链接
+                    foreach ($videoInfo['playAddr'] as $addr) {
+                        if (isset($addr['src']) && strpos($addr['src'], 'v3-web') !== false) {
+                            $liveVideoUrl = $addr['src'];
+                            break;
+                        }
+                    }
+                    // 没找到 v3-web，则回退到备用逻辑 (优先取第二个，没有则第一个)
+                    if (!$liveVideoUrl) {
+                        $liveVideoUrl = $videoInfo['playAddr'][1]['src'] ?? ($videoInfo['playAddr'][0]['src'] ?? null);
+                    }
+                }
+
+                // 2. 尝试 play_addr.url_list (字符串数组结构)
+                if (!$liveVideoUrl && isset($videoInfo['play_addr']['url_list'])) {
+                    $urlList = $videoInfo['play_addr']['url_list'];
+                    // 优先匹配包含 v3-web 的链接
+                    foreach ($urlList as $url) {
+                        if (strpos($url, 'v3-web') !== false) {
+                            $liveVideoUrl = $url;
+                            break;
+                        }
+                    }
+                    // 没找到 v3-web，则回退到备用逻辑
+                    if (!$liveVideoUrl) {
+                        $liveVideoUrl = $urlList[1] ?? ($urlList[0] ?? null);
+                    }
+                }
+
+                // 3. 尝试 playApi
+                if (!$liveVideoUrl) {
+                    $liveVideoUrl = $videoInfo['playApi'] ?? null;
                 }
 
                 if ($liveVideoUrl) {
