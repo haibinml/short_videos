@@ -238,6 +238,23 @@ class XiaohongshuParser
     }
 
     /**
+     * 处理图片链接，去除水印
+     */
+    private function processImageUrl($url)
+    {
+        if (empty($url)) {
+            return '';
+        }
+
+        // 提取 notes_pre_post 后面的 token
+        if (preg_match('/notes_pre_post\/([a-zA-Z0-9]+)/', $url, $matches)) {
+            return 'https://sns-img-hw.xhscdn.com/notes_pre_post/' . $matches[1];
+        }
+
+        return $url;
+    }
+
+    /**
      * 格式化笔记数据
      */
     private function formatNoteData($note)
@@ -247,7 +264,6 @@ class XiaohongshuParser
         if ($type === 'normal') {
             $type = 'image';
         }
-
         $result = [
             'type' => $type, // video, image, live
             'title' => $note['title'] ?? '',
@@ -258,7 +274,7 @@ class XiaohongshuParser
                 'avatar' => $note['user']['avatar'] ?? '',
             ],
             // 优先使用 urlDefault (通常是无水印高清图)，如果不存在则回退到 urlPre
-            'cover' => $note['imageList'][0]['urlDefault'] ?? ($note['imageList'][0]['urlPre'] ?? ($note['cover']['url'] ?? '')),
+            'cover' => $this->processImageUrl($note['imageList'][0]['urlDefault'] ?? ($note['imageList'][0]['urlPre'] ?? ($note['cover']['url'] ?? ''))),
             'url' => null,
             'images' => [],
             'live_photo' => [] // 实况图
@@ -318,9 +334,9 @@ class XiaohongshuParser
             foreach ($note['imageList'] as $img) {
                 // 普通图片
                 if (isset($img['urlDefault'])) {
-                    $result['images'][] = $img['urlDefault'];
+                    $result['images'][] = $this->processImageUrl($img['urlDefault']);
                 } elseif (isset($img['urlPre'])) {
-                    $result['images'][] = $img['urlPre']; // 兜底
+                    $result['images'][] = $this->processImageUrl($img['urlPre']); // 兜底
                 }
 
                 // 实况图 (Live Photo)
@@ -335,7 +351,7 @@ class XiaohongshuParser
 
                 if ($liveVideoUrl) {
                     $result['live_photo'][] = [
-                        'image' => $img['urlDefault'] ?? '',
+                        'image' => $this->processImageUrl($img['urlDefault'] ?? ''),
                         'video' => $liveVideoUrl
                     ];
                 }

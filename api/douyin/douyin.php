@@ -8,6 +8,8 @@
  * @tip: 抖音解析统一接口,支持短视频、图集、实况
  */
 
+use douyin\DouyinParser;
+
 require_once 'DouyinParser.php';
 
 header("Access-Control-Allow-Origin: *");

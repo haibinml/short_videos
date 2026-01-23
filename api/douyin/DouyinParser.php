@@ -1,4 +1,6 @@
 <?php
+
+namespace douyin;
 /**
  * @Author: JH-Ahua
  * @CreateTime: 2026/1/23 下午3:38
@@ -7,7 +9,6 @@
  * @Api: api.bugpk.com
  * @tip: 整合视频、图文、图集、实况解析
  */
-
 class DouyinParser
 {
     private $headers;
