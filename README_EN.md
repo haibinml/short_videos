@@ -1,94 +1,241 @@
 <div align="center">
-  <img width="100px" alt="logo" src="https://img.jiuhunwl.cn/up/2025/05/23/68305545df6d7.png"/></a>
+  <img width="100px" alt="logo" src="https://img.jiuhunwl.cn/up/2025/05/23/68305545df6d7.png"/>
+  <h1>Short Video Watermark Removal & Parsing API</h1>
   <p><em>Source code for short video watermark removal and parsing interface</em></p>
-<div>
-  <a href="https://github.com/OpenListTeam/jiuhunwl/short_videos/main/LICENSE">
-    <img src="https://img.shields.io/github/license/jiuhunwl/short_videos" alt="License" />
-  </a>
+  <div>
+    <a href="https://github.com/OpenListTeam/jiuhunwl/short_videos/main/LICENSE">
+      <img src="https://img.shields.io/github/license/jiuhunwl/short_videos" alt="License" />
+    </a>
+    <a href="https://php.net">
+      <img src="https://img.shields.io/badge/PHP-8.0+-777BB4?style=flat&logo=php&logoColor=white" alt="PHP Version" />
+    </a>
+    <a href="https://github.com/jiuhunwl/short_videos">
+      <img src="https://img.shields.io/github/stars/jiuhunwl/short_videos?style=social" alt="GitHub Stars" />
+    </a>
+  </div>
+  <br />
+  <div>
+    <a href="#features">Features</a>
+    •
+    <a href="#supported-platforms">Platforms</a>
+    •
+    <a href="#installation">Installation</a>
+    •
+    <a href="#usage">Usage</a>
+    •
+    <a href="#api-reference">API Reference</a>
+    •
+    <a href="#contact">Contact</a>
+  </div>
 </div>
-<div>
-</div>
-</div>
 
-# Source code for short video watermark removal and parsing interface
-| English | [中文](./README.md)
-## ！Declaration ！
-This project is open source software and is licensed under the MIT license. Any person or organization is free to use, modify and distribute the source code of this project. However, we expressly state that the Project and any derivative works thereof may not be used for any commercial or paid projects. Any violation of this statement will be considered an infringement of the license of this project. We encourage everyone to contribute and share their code in accordance with the open source ethos and licenses.
+---
 
-## 🚀 Project Introduction
-This tool is used to parse the video link of the short video platform and obtain the detailed information of the video, such as the video address, cover image, and author information.
-## Project environment
-PHP8.0
-## Functional Features
-- 支持多种短视频平台的链接解析
-- 快速获取视频相关信息
-- 返回结构化的 JSON 数据
+## 📋 Table of Contents
 
-## 📦 Installation and Deployment
+- [About](#about)
+- [⚠️ Important Notice](#%EF%B8%8F-important-notice)
+- [✨ Features](#features)
+- [🌐 Supported Platforms](#supported-platforms)
+- [📦 Installation](#installation)
+- [🚀 Usage](#usage)
+- [📖 API Reference](#api-reference)
+- [🤝 Contributing](#contributing)
+- [📄 License](#license)
+- [📮 Contact](#contact)
 
-### 1. Download the code
+---
 
+## 🎯 About
 
+This tool is designed to parse video links from various short video platforms and extract detailed information such as:
 
-```
+- Direct video URLs (without watermarks)
+- Cover images
+- Author information
+- Video metadata
+
+All responses are returned in structured JSON format for easy integration.
+
+---
+
+## ⚠️ Important Notice
+
+This project is open-source software licensed under the MIT License. Any individual or organization is free to use,
+modify, and distribute the source code.
+
+**However, we explicitly state that this project and any derivative works may NOT be used for commercial or paid
+projects.**
+
+Any violation of this statement will be considered an infringement of the project's license terms.
+
+We encourage everyone to contribute and share code in accordance with open-source ethics and licensing terms.
+
+---
+
+## ✨ Features
+
+- **Multi-Platform Support**: Parse video links from various short video platforms
+- **Watermark Removal**: Get direct video URLs without watermarks
+- **Fast Performance**: Quick response times for parsing requests
+- **Structured Data**: Returns well-formatted JSON data
+- **Easy Integration**: Simple API interface for seamless integration
+- **No Installation Required**: Can be used directly on any PHP server
+
+---
+
+## 🌐 Supported Platforms
+
+| Platform                          | API File       | Status   |
+|-----------------------------------|----------------|----------|
+| **Douyin** (TikTok China)         | `douyin.php`   | ✅ Active |
+| **Kuaishou**                      | `kuaishou.php` | ✅ Active |
+| **Kuaishou Images**               | `ksimg.php`    | ✅ Active |
+| **Xiaohongshu** (Little Red Book) | `xhs.php`      | ✅ Active |
+| **Xiaohongshu Images**            | `xhsimg.php`   | ✅ Active |
+| **Xiaohongshu Live**              | `xhsjx.php`    | ✅ Active |
+| **Qishui Music**                  | `qsmusic.php`  | ✅ Active |
+| **Pipigx**                        | `pipigx.php`   | ✅ Active |
+| **Pipixia**                       | `ppxia.php`    | ✅ Active |
+| **Bilibili**                      | `bilibili.php` | ✅ Active |
+| **Weibo** (Interface Version)     | `weibo.php`    | ✅ Active |
+| **Weibo**                         | `weibo_v.php`  | ✅ Active |
+
+---
+
+## 📦 Installation
+
+### Requirements
+
+- **PHP 8.0** or higher
+- Web server (Apache/Nginx)
+- No additional dependencies required!
+
+### 1. Download the Code
+
+```bash
 git clone https://github.com/jiuhunwl/short_videos.git
-
 cd short_videos
 ```
-### 2. Use directly (no installation required)
 
-Upload `xxx.php` to a web server and access it via URL：
-```
-http://Your server address/xxx.php?url=Target link
-```
-### 3. Interface Directory
+### 2. Deploy to Server
 
-- [x] [douyin.php](short_videos/api/douyin.php): Script for removing watermarks from Douyin video atlases.
-- [x] [kuaishou.php](short_videos/api/kuaishou.php): Script for removing watermarks from Kuaishou short videos.
-- [x] [ksimg.php](short_videos/api/ksimg.php): Script for parsing Kuaishou atlases.
-- [x] [xhs.php](short_videos/api/xhs.php): Script for parsing Xiaohongshu videos.
-- [x] [xhsimg.php](short_videos/api/xhsimg.php): Script for parsing Xiaohongshu images.
-- [x] [xhsjx.php](short_videos/api/xhsjx.php): Script for removing watermarks from Xiaohongshu videos and atlases.
-- [x] [qsmusic.php](short_videos/api/qsmusic.php): Script for parsing Qishui Music.
-- [x] [pipigx.php](short_videos/api/pipigx.php): Script for removing watermarks from Pipigx videos.
-- [x] [ppxia.php](short_videos/api/ppxia.php): Script for removing watermarks from Pipixia videos.
-- [x] [bilibili.php](short_videos/api/bilibili.php): Script for removing watermarks from Bilibili videos.
-- [x] [weibo.php](short_videos/api/weibo.php): Script for removing watermarks from Weibo videos (interface version).
-- [x] [weibo_v.php](short_videos/api/weibo_v.php): Script for removing watermarks from Weibo videos.
+Upload the PHP files to your web server. No installation or configuration needed!
 
-### Request Parameters
+---
 
-| Parameter Name | Type | Description | Required |
-| ---- | ---- | ---- | ---- |
-| url | String | Video link from a short video platform | Yes |
+## 🚀 Usage
 
-### Request Example
+### Basic Usage
+
+Access the API directly via URL:
+
 ```plaintext
-https://api.bugpk.com/api/xxx.php?url=https://xxx.xxx/xxx
+http://your-server-domain/api/xxx.php?url=VIDEO_LINK
 ```
-### 请求结果
+
+### Example Request
+
 ```plaintext
+https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
+```
+
+### Example Response
+
+```json
 {
     "code": 200,
     "msg": "Parsing successful",
     "data": {
-        "author": "Author's name",
-        "authorID": "Author's ID",
-        "title": "Title",
-        "desc": "Detailed description",
-        "avatar": "Author's avatar",
-        "cover": "Work's cover",
-        "url": "Direct link to the work",
-        "imgurl": [Atlas links]
+      "author": "Author Name",
+      "authorID": "123456789",
+      "title": "Video Title",
+      "desc": "Video description content",
+      "avatar": "https://example.com/avatar.jpg",
+      "cover": "https://example.com/cover.jpg",
+      "url": "https://example.com/video.mp4",
+      "imgurl": [
+        "https://example.com/image1.jpg",
+        "https://example.com/image2.jpg"
+      ]
     }
 }
 ```
-## 📮 Contact Us
 
-**Author**：JH-Ahua
+---
 
-**Interface demonstration official website**：[https://api.bugpk.com/](https://api.bugpk.com/)
+## 📖 API Reference
 
-**Feedback email**：[admin@bugpk.com](mailto:admin@bugpk.com)
+### Request Parameters
 
-**GitHub**：[https://github.com/jiuhunwl](https://github.com/jiuhunwl)
+| Parameter | Type   | Description                          | Required |
+|-----------|--------|--------------------------------------|----------|
+| `url`     | String | Video link from short video platform | ✅ Yes    |
+
+### Response Format
+
+| Field           | Type    | Description                            |
+|-----------------|---------|----------------------------------------|
+| `code`          | Integer | Response status code (200 = success)   |
+| `msg`           | String  | Response message                       |
+| `data`          | Object  | Video data object                      |
+| `data.author`   | String  | Author's name                          |
+| `data.authorID` | String  | Author's unique ID                     |
+| `data.title`    | String  | Video title                            |
+| `data.desc`     | String  | Video description                      |
+| `data.avatar`   | String  | Author's avatar URL                    |
+| `data.cover`    | String  | Video cover image URL                  |
+| `data.url`      | String  | Direct video URL (without watermark)   |
+| `data.imgurl`   | Array   | Array of image URLs (for image albums) |
+
+### Status Codes
+
+| Code  | Description                |
+|-------|----------------------------|
+| `200` | Parsing successful         |
+| `400` | Invalid request parameters |
+| `404` | Video not found            |
+| `500` | Server error               |
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit issues and pull requests.
+
+### How to Contribute
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see
+the [LICENSE](https://github.com/OpenListTeam/jiuhunwl/short_videos/main/LICENSE) file for details.
+
+---
+
+## 📮 Contact
+
+**Author**: JH-Ahua
+
+**Official Demo Website**: [https://api.bugpk.com/](https://api.bugpk.com/)
+
+**Feedback Email**: [admin@bugpk.com](mailto:admin@bugpk.com)
+
+**GitHub**: [https://github.com/jiuhunwl](https://github.com/jiuhunwl)
+
+---
+
+<div align="center">
+  <p>⭐ If you find this project useful, please give it a star!</p>
+</div>
+
+---
+
+*[中文](./README.md)*

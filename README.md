@@ -1,90 +1,222 @@
 <div align="center">
-  <img width="100px" alt="logo" src="img/icon.png"/></a>
-  <p><em>短视频去水印解析接口源码</em></p>
-<div>
-  <a href="https://github.com/OpenListTeam/jiuhunwl/short_videos/main/LICENSE">
-    <img src="https://img.shields.io/github/license/jiuhunwl/short_videos" alt="License" />
-  </a>
+  <img width="100px" alt="logo" src="img/icon.png"/>
+  <h1>短视频去水印解析接口</h1>
+  <p><em>支持多平台短视频链接解析与去水印</em></p>
+  <div>
+    <a href="https://github.com/OpenListTeam/jiuhunwl/short_videos/main/LICENSE">
+      <img src="https://img.shields.io/github/license/jiuhunwl/short_videos" alt="许可证" />
+    </a>
+    <a href="https://php.net">
+      <img src="https://img.shields.io/badge/PHP-8.0+-777BB4?style=flat&logo=php&logoColor=white" alt="PHP版本" />
+    </a>
+    <a href="https://github.com/jiuhunwl/short_videos">
+      <img src="https://img.shields.io/github/stars/jiuhunwl/short_videos?style=social" alt="GitHub星标" />
+    </a>
+  </div>
+  <br />
+  <div>
+    <a href="#功能特点">功能特点</a>
+    •
+    <a href="#支持平台">支持平台</a>
+    •
+    <a href="#安装部署">安装部署</a>
+    •
+    <a href="#使用说明">使用说明</a>
+    •
+    <a href="#接口文档">接口文档</a>
+    •
+    <a href="#联系方式">联系方式</a>
+  </div>
 </div>
-<div>
-</div>
-</div>
 
-## 短视频去水印解析接口源码
-| 中文 |[ENGLISH](./README_EN.md)
-## ！声明 ！
-本项目为开源软件，遵循MIT许可证。任何个人或组织均可自由使用、修改和分发本项目的源代码。然而，我们明确声明，本项目及其任何衍生作品不得用于任何商业或付费项目。任何违反此声明的行为都将被视为对本项目许可证的侵犯。我们鼓励大家在遵守开源精神和许可证的前提下，积极贡献和分享代码。
+---
 
-## 🚀 项目简介
-本工具用于解析短视频平台的视频链接，获取视频的详细信息，如视频地址、封面图、作者信息等。
-## 项目环境
-PHP8.0
+## 📋 目录
 
-## 功能特点
-- 支持多种短视频平台的链接解析
-- 快速获取视频相关信息
-- 返回结构化的 JSON 数据
+- [项目简介](#项目简介)
+- [⚠️ 重要声明](#%EF%B8%8F-重要声明)
+- [✨ 功能特点](#功能特点)
+- [🌐 支持平台](#支持平台)
+- [📦 安装部署](#安装部署)
+- [🚀 使用说明](#使用说明)
+- [📖 接口文档](#接口文档)
+- [🤝 贡献指南](#贡献指南)
+- [📄 许可证](#许可证)
+- [📮 联系方式](#联系方式)
+- [📱 公众号](#公众号)
 
-## 📦 安装与部署
+---
+
+## 🎯 项目简介
+
+本工具用于解析各大短视频平台的视频链接，获取视频的详细信息，包括：
+
+- 无水印的直链视频地址
+- 视频封面图片
+- 作者信息
+- 视频元数据
+
+所有接口均返回结构化的 JSON 数据，便于快速集成到您的应用中。
+
+---
+
+## ⚠️ 重要声明
+
+本项目为开源软件，遵循 MIT 许可证。任何个人或组织均可自由使用、修改和分发本项目的源代码。
+
+**然而，我们明确声明：本项目及其任何衍生作品不得用于任何商业或付费项目。**
+
+任何违反此声明的行为都将被视为对本项目许可证的侵犯。
+
+我们鼓励大家在遵守开源精神和许可证的前提下，积极贡献和分享代码。
+
+---
+
+## ✨ 功能特点
+
+- **多平台支持**：支持主流短视频平台的链接解析
+- **去水印解析**：获取无水印的视频直链
+- **极速响应**：快速解析视频链接，响应迅速
+- **结构化数据**：返回标准 JSON 格式数据
+- **易于集成**：简单的 API 接口，便于集成
+- **零配置部署**：无需安装依赖，上传即用
+
+---
+
+## 🌐 支持平台
+
+| 平台                 | 接口文件           | 状态   |
+|--------------------|----------------|------|
+| **抖音** (TikTok 中国) | `douyin.php`   | ✅ 可用 |
+| **快手**             | `kuaishou.php` | ✅ 可用 |
+| **小红书**            | `xhsjx.php`    | ✅ 可用 |
+| **汽水音乐**           | `dymusic.php`  | ✅ 可用 |
+| **皮皮搞笑**           | `pipigx.php`   | ✅ 可用 |
+| **皮皮虾**            | `ppxia.php`    | ✅ 可用 |
+| **哔哩哔哩**           | `bilibili.php` | ✅ 可用 |
+| **微博** 【接口版】       | `weibo.php`    | ✅ 可用 |
+| **微博**             | `weibo_v.php`  | ✅ 可用 |
+| **今日头条**           | `toutiao.php`  | ✅ 可用 |
+
+---
+
+## 📦 安装部署
+
+### 环境要求
+
+- **PHP 8.0** 或更高版本
+- Web 服务器 (Apache/Nginx)
+- 无需额外依赖！
 
 ### 1. 下载代码
 
-
-
-```
+```bash
 git clone https://github.com/jiuhunwl/short_videos.git
-
 cd short_videos
 ```
-### 2. 直接使用（无需安装）
 
-将 `xxx.php` 上传至 Web 服务器，通过 URL 访问：
+### 2. 部署到服务器
+
+将 PHP 文件上传到您的 Web 服务器即可使用，无需任何配置！
+
+---
+
+## 🚀 使用说明
+
+### 基础用法
+
+直接通过 URL 访问接口：
+
+```plaintext
+https://你的服务器地址/api/xxx.php?url=视频链接
 ```
-http://你的服务器地址/xxx.php?url=目标链接
-```
-### 3.接口目录
-
-- [x] [douyin.php](short_videos/api/douyin.php)：抖音视频图集去水印解析脚本。
-- [x] [kuaishou.php](short_videos/api/kuaishou.php)：快手短视频去水印解析脚本。
-- [x] [ksimg.php](short_videos/api/ksimg.php)：快手图集解析脚本。
-- [x] [xhs.php](short_videos/api/xhs.php)：小红书视频解析脚本。
-- [x] [xhsimg.php](short_videos/api/xhsimg.php)：小红书图文解析脚本。
-- [x] [xhsjx.php](short_videos/api/xhsjx.php)：小红书视频&图集去水印解析脚本。
-- [x] [qsmusic.php](short_videos/api/qsmusic.php)：汽水音乐解析脚本。
-- [x] [pipigx.php](short_videos/api/pipigx.php)：皮皮搞笑去水印解析脚本。
-- [x] [ppxia.php](short_videos/api/ppxia.php)：皮皮虾去水印解析脚本。
-- [x] [bilibili.php](short_videos/api/bilibili.php)：哔哩哔哩视频去水印解析脚本。
-- [x] [weibo.php](short_videos/api/weibo.php)：微博视频去水印解析【接口版】脚本。
-- [x] [weibo_v.php](short_videos/api/weibo_v.php)：微博视频去水印解析脚本。
-
-### 请求参数
-
-| 参数名 | 类型 | 描述 | 是否必填 |
-| ---- | ---- | ---- | ---- |
-| url | 字符串 | 短视频平台的视频链接 | 是 |
 
 ### 请求示例
+
 ```plaintext
-https://api.bugpk.com/api/xxx.php?url=https://xxx.xxx/xxx
+https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
 ```
-### 请求结果
-```plaintext
+
+### 响应示例
+
+```json
 {
     "code": 200,
     "msg": "解析成功",
     "data": {
         "author": "作者名称",
-        "authorID": "作者id",
-        "title": "标题",
-        "desc": "文案详情",
-        "avatar": "作者头像",
-        "cover": "作品封面",
-        "url": "作品直链",
-        "imgurl":[图集链接]
+      "authorID": "123456789",
+      "title": "视频标题",
+      "desc": "视频描述内容",
+      "avatar": "https://example.com/avatar.jpg",
+      "cover": "https://example.com/cover.jpg",
+      "url": "https://example.com/video.mp4",
+      "imgurl": [
+        "https://example.com/image1.jpg",
+        "https://example.com/image2.jpg"
+      ]
     }
 }
 ```
-## 📮 联系我们
+
+---
+
+## 📖 接口文档
+
+### 请求参数
+
+| 参数名   | 类型  | 描述         | 是否必填 |
+|-------|-----|------------|------|
+| `url` | 字符串 | 短视频平台的视频链接 | ✅ 是  |
+
+### 响应格式
+
+| 字段              | 类型  | 描述               |
+|-----------------|-----|------------------|
+| `code`          | 整数  | 响应状态码 (200 = 成功) |
+| `msg`           | 字符串 | 响应消息             |
+| `data`          | 对象  | 视频数据对象           |
+| `data.author`   | 字符串 | 作者名称             |
+| `data.authorID` | 字符串 | 作者唯一标识           |
+| `data.title`    | 字符串 | 视频标题             |
+| `data.desc`     | 字符串 | 视频描述             |
+| `data.avatar`   | 字符串 | 作者头像 URL         |
+| `data.cover`    | 字符串 | 视频封面图 URL        |
+| `data.url`      | 字符串 | 无水印视频直链          |
+| `data.imgurl`   | 数组  | 图集图片 URL 数组      |
+
+### 状态码说明
+
+| 状态码   | 描述     |
+|-------|--------|
+| `200` | 解析成功   |
+| `400` | 请求参数错误 |
+| `404` | 视频不存在  |
+| `500` | 服务器错误  |
+
+---
+
+## 🤝 贡献指南
+
+欢迎贡献代码！请随时提交 Issue 和 Pull Request。
+
+### 贡献步骤
+
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启 Pull Request
+
+---
+
+## 📄 许可证
+
+本项目采用 MIT 许可证 - 详见 [LICENSE](https://github.com/OpenListTeam/jiuhunwl/short_videos/main/LICENSE) 文件。
+
+---
+
+## 📮 联系方式
 
 **作者**：JH-Ahua
 
@@ -94,8 +226,33 @@ https://api.bugpk.com/api/xxx.php?url=https://xxx.xxx/xxx
 
 **GitHub**：[https://github.com/jiuhunwl](https://github.com/jiuhunwl)
 
-## 公众号
+---
 
-| 微信公众号                 | |
-|-----------------------|-|
-| ![微信公众号](img/gzh.jpg) | |
+## 📱 公众号
+
+欢迎关注微信公众号获取更多资讯：
+
+<div align="center">
+  <table>
+    <tr>
+      <td>
+        <img src="img/gzh.jpg" alt="微信公众号" width="200" />
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <strong>微信公众号</strong>
+      </td>
+    </tr>
+  </table>
+</div>
+
+---
+
+<div align="center">
+  <p>⭐ 如果这个项目对您有帮助，请给个 Star 支持一下！</p>
+</div>
+
+---
+
+*[English](./README_EN.md)*
