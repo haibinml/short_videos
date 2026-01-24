@@ -1,7 +1,7 @@
 <?php
 /**
  * @Author: JH-Ahua
- * @CreateTime: 2026/1/24 下午5:04
+ * @CreateTime: 2026/1/24 下午9:28
  * @email: admin@bugpk.com
  * @blog: www.jiuhunwl.cn
  * @Api: api.bugpk.com
@@ -86,7 +86,6 @@ class KuaishouSpider
 
         $firstItem = reset($filteredData);
         $photo = $firstItem['photo'] ?? [];
-
         // 提取公共音乐信息
         $musicInfo = [];
         $musicSource = $photo['music'] ?? ($photo['soundTrack'] ?? []);
@@ -284,6 +283,23 @@ class KuaishouSpider
 
     private function curlRequest(string $url)
     {
+        $headers = [
+            'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+            'Accept-Language: zh-CN,zh;q=0.9',
+            'Cache-Control: no-cache',
+            'Connection: keep-alive',
+            'Pragma: no-cache',
+            'Sec-Fetch-Dest: document',
+            'Sec-Fetch-Mode: navigate',
+            'Sec-Fetch-Site: none',
+            'Sec-Fetch-User: ?1',
+            'Upgrade-Insecure-Requests: 1',
+            'sec-ch-ua: "Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"',
+            'sec-ch-ua-mobile: ?0',
+            'sec-ch-ua-platform: "Windows"',
+            'Cookie: ' . $this->cookie
+        ];
+
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_HEADER => false,
@@ -293,7 +309,7 @@ class KuaishouSpider
             CURLOPT_AUTOREFERER => true,
             CURLOPT_TIMEOUT => $this->timeout,
             CURLOPT_USERAGENT => $this->userAgent,
-            CURLOPT_HTTPHEADER => ['Cookie: ' . $this->cookie]
+            CURLOPT_HTTPHEADER => $headers
         ]);
         $response = curl_exec($ch);
         curl_close($ch);
