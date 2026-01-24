@@ -1,7 +1,11 @@
 <?php
 /**
- * XiaohongshuParser - 小红书解析类
- * 整合图文、视频、实况解析
+ * @Author: JH-Ahua
+ * @CreateTime: 2026/1/24 下午5:04
+ * @email: admin@bugpk.com
+ * @blog: www.jiuhunwl.cn
+ * @Api: api.bugpk.com
+ * @tip: 整合图文、视频、实况解析
  */
 
 class XiaohongshuParser
