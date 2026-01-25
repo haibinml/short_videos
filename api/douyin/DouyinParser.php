@@ -1,11 +1,7 @@
 <?php
 /**
- * @Author: JH-Ahua
- * @CreateTime: 2026/1/25 下午2:58
- * @email: admin@bugpk.com
- * @blog: www.jiuhunwl.cn
- * @Api: api.bugpk.com
- * @tip: 整合视频、图文、图集、实况解析
+ * DouyinParser - 抖音解析类
+ * 整合视频、图文、图集、实况解析
  */
 
 class DouyinParser
@@ -329,13 +325,24 @@ class DouyinParser
                 // 1. 尝试 playAddr (对象数组结构，如 dylive.json)
                 if (isset($videoInfo['playAddr']) && is_array($videoInfo['playAddr'])) {
                     $liveVideoUrl = null;
+                    $v26Candidate = null;
                     // 优先匹配包含 v3-web 的链接
                     foreach ($videoInfo['playAddr'] as $addr) {
-                        if (isset($addr['src']) && strpos($addr['src'], 'v3-web') !== false) {
-                            $liveVideoUrl = $addr['src'];
-                            break;
+                        if (isset($addr['src'])) {
+                            if (strpos($addr['src'], 'v3-web') !== false) {
+                                $liveVideoUrl = $addr['src'];
+                                break;
+                            }
+                            if (strpos($addr['src'], 'v26-web') !== false) {
+                                $v26Candidate = $addr['src'];
+                            }
                         }
                     }
+
+                    if (!$liveVideoUrl && $v26Candidate) {
+                        $liveVideoUrl = preg_replace('/:\/\/([^\/]+)/', '://v26-luna.douyinvod.com', $v26Candidate);
+                    }
+
                     // 没找到 v3-web，则回退到备用逻辑 (优先取第二个，没有则第一个)
                     if (!$liveVideoUrl) {
                         $liveVideoUrl = $videoInfo['playAddr'][1]['src'] ?? ($videoInfo['playAddr'][0]['src'] ?? null);
@@ -345,13 +352,22 @@ class DouyinParser
                 // 2. 尝试 play_addr.url_list (字符串数组结构)
                 if (!$liveVideoUrl && isset($videoInfo['play_addr']['url_list'])) {
                     $urlList = $videoInfo['play_addr']['url_list'];
+                    $v26Candidate = null;
                     // 优先匹配包含 v3-web 的链接
                     foreach ($urlList as $url) {
                         if (strpos($url, 'v3-web') !== false) {
                             $liveVideoUrl = $url;
                             break;
                         }
+                        if (strpos($url, 'v26-web') !== false) {
+                            $v26Candidate = $url;
+                        }
                     }
+
+                    if (!$liveVideoUrl && $v26Candidate) {
+                        $liveVideoUrl = preg_replace('/:\/\/([^\/]+)/', '://v26-luna.douyinvod.com', $v26Candidate);
+                    }
+
                     // 没找到 v3-web，则回退到备用逻辑
                     if (!$liveVideoUrl) {
                         $liveVideoUrl = $urlList[1] ?? ($urlList[0] ?? null);
@@ -421,6 +437,7 @@ class DouyinParser
                         $candidates = $rateItem['play_addr']['url_list'];
                     }
 
+                    $v26Candidate = null;
                     foreach ($candidates as $candidate) {
                         if (strpos($candidate, 'v3-web') !== false) {
                             if (!$url) {
@@ -428,10 +445,17 @@ class DouyinParser
                             } elseif (!$backup) {
                                 $backup = $candidate; // 备用
                             }
+                        } elseif (strpos($candidate, 'v26-web') !== false) {
+                            $v26Candidate = $candidate;
                         }
                     }
 
-                    // 如果没找到 v3-web，暂时存下第一个可用的作为备选
+                    // 如果没有找到 v3-web 链接，尝试使用 v26-web 并替换域名
+                    if (!$url && $v26Candidate) {
+                        $url = preg_replace('/:\/\/([^\/]+)/', '://v26-luna.douyinvod.com', $v26Candidate);
+                    }
+
+                    // 如果没找到 v3-web 且没处理 v26，暂时存下第一个可用的作为备选
                     if (!$url && !empty($candidates)) {
                         $url = $candidates[0];
                     }
