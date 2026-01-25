@@ -1,5 +1,5 @@
 <div align="center">
-  <img width="100px" alt="logo" src="https://img.jiuhunwl.cn/up/2025/05/23/68305545df6d7.png"/>
+  <img width="100px" alt="logo" src="img/icon.png"/>
   <h1>Short Video Watermark Removal & Parsing API</h1>
   <p><em>Source code for short video watermark removal and parsing interface</em></p>
   <div>
