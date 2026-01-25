@@ -1,19 +1,18 @@
 <?php
-
-namespace douyin;
 /**
  * @Author: JH-Ahua
- * @CreateTime: 2026/1/23 下午3:38
+ * @CreateTime: 2026/1/25 下午2:58
  * @email: admin@bugpk.com
  * @blog: www.jiuhunwl.cn
  * @Api: api.bugpk.com
  * @tip: 整合视频、图文、图集、实况解析
  */
+
 class DouyinParser
 {
     private $headers;
     private $cookie;
-    private $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0';
+    private $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
     public function __construct()
     {
@@ -148,6 +147,18 @@ class DouyinParser
         if (preg_match('/^(\d+)$/', $url, $matches)) {
             return $matches[1];
         }
+        if (preg_match('/note\/(\d+)/', $url, $matches)) {
+            return $matches[1];
+        }
+        // 匹配 share/slides/xxx (新增)
+        if (preg_match('/\/share\/slides\/(\d+)/', $url, $matches)) {
+            return $matches[1];
+        }
+        // 匹配 share/video/xxx (新增)
+        if (preg_match('/\/share\/video\/(\d+)/', $url, $matches)) {
+            return $matches[1];
+        }
+        // 尝试匹配纯数字 (防止某些短链解开后直接是ID)
         return null;
     }
 
