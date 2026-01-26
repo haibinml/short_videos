@@ -251,7 +251,18 @@ class XiaohongshuParser
         }
 
         // 1. 优先处理 notes_pre_post 和 spectrum
-        if (preg_match('/(notes_pre_post|spectrum)\/([a-zA-Z0-9]+)/', $url, $matches)) {
+        // 通用匹配 /目录/ID 结构，自动适配 notes_pre_post, spectrum, notes_uhdr 等
+        if (preg_match('/\/([a-zA-Z0-9_]+)\/([a-zA-Z0-9]+)!/', $url, $matches)) {
+            $dir = $matches[1];
+            // 排除纯数字(可能是日期)和32位hex(可能是hash)
+            // 这里的判断是为了防止把 /202601262127/hash/ 中的 hash 当作目录
+            if (!preg_match('/^[a-f0-9]{32}$/', $dir) && !is_numeric($dir)) {
+                return 'https://sns-img-hw.xhscdn.com/' . $dir . '/' . $matches[2] . '?imageView2/2/w/1080/format/jpg';
+            }
+        }
+
+        // 针对不带 ! 的短链接 (如 http://sns-img-bd.xhscdn.com/notes_pre_post/xxx)
+        if (preg_match('/(notes_pre_post|spectrum|notes_uhdr)\/([a-zA-Z0-9]+)/', $url, $matches)) {
             return 'https://sns-img-hw.xhscdn.com/' . $matches[1] . '/' . $matches[2] . '?imageView2/2/w/1080/format/jpg';
         }
 
