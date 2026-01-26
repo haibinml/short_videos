@@ -250,9 +250,15 @@ class XiaohongshuParser
             return '';
         }
 
-        // 提取 notes_pre_post 后面的 token
-        if (preg_match('/notes_pre_post\/([a-zA-Z0-9]+)/', $url, $matches)) {
-            return 'https://sns-img-hw.xhscdn.com/notes_pre_post/' . $matches[1];
+        // 1. 优先处理 notes_pre_post 和 spectrum
+        if (preg_match('/(notes_pre_post|spectrum)\/([a-zA-Z0-9]+)/', $url, $matches)) {
+            return 'https://sns-img-hw.xhscdn.com/' . $matches[1] . '/' . $matches[2] . '?imageView2/2/w/1080/format/jpg';
+        }
+
+        // 2. 处理其他带 ! 的图片链接 (如实况图)
+        // 匹配规则：斜杠后跟一串字符，紧接着是 !
+        if (preg_match('/\/([a-zA-Z0-9]+)!/', $url, $matches)) {
+            return 'https://ci.xiaohongshu.com/' . $matches[1] . '?imageView2/2/w/1080/format/jpg';
         }
 
         return $url;
