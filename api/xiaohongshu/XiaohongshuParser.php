@@ -1,7 +1,7 @@
 <?php
 /**
  * @Author: JH-Ahua
- * @CreateTime: 2026/1/24 下午5:04
+ * @CreateTime: 2026/1/27 下午1:56
  * @email: admin@bugpk.com
  * @blog: www.jiuhunwl.cn
  * @Api: api.bugpk.com
@@ -187,6 +187,40 @@ class XiaohongshuParser
         // 尝试直接匹配JSON
         $data = $this->extractJson($response, $id);
 
+        // 如果 data 为空，尝试使用备用 UA 重试
+        if (!$data) {
+            $backupUserAgent = 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36 EdgA/143.0.0.0';
+
+            // 备份原有 headers
+            $originalHeaders = $this->headers;
+
+            // 构造新 headers (替换 UA)
+            $newHeaders = [];
+            $uaReplaced = false;
+            foreach ($originalHeaders as $header) {
+                if (stripos($header, 'User-Agent:') === 0) {
+                    $newHeaders[] = 'User-Agent: ' . $backupUserAgent;
+                    $uaReplaced = true;
+                } else {
+                    $newHeaders[] = $header;
+                }
+            }
+            if (!$uaReplaced) {
+                $newHeaders[] = 'User-Agent: ' . $backupUserAgent;
+            }
+
+            $this->headers = $newHeaders;
+
+            // 重新请求
+            $retryResponse = $this->request($url);
+            if ($retryResponse) {
+                $data = $this->extractJson($retryResponse, $id);
+            }
+
+            // 恢复 headers
+            $this->headers = $originalHeaders;
+        }
+
         // 如果直接匹配失败，尝试xhslive.php中的高级策略（获取token后请求API）
         if (!$data) {
             $token = '';
@@ -285,6 +319,15 @@ class XiaohongshuParser
         if ($type === 'normal') {
             $type = 'image';
         }
+
+        // 优先使用 urlDefault (通常是无水印高清图)，如果不存在则回退到 urlPre
+        $coverUrl = $note['imageList'][0]['urlDefault'] ?? ($note['imageList'][0]['urlPre'] ?? ($note['cover']['url'] ?? ''));
+
+        // 如果没有找到封面链接，但存在 cover.fileId，则手动拼接
+        if (!$coverUrl && isset($note['cover']['fileId'])) {
+            $coverUrl = 'https://sns-img-hw.xhscdn.com/' . $note['cover']['fileId'] . '?imageView2/2/w/1080/format/jpg';
+        }
+
         $result = [
             'type' => $type, // video, image, live
             'title' => $note['title'] ?? '',
@@ -294,8 +337,7 @@ class XiaohongshuParser
                 'id' => $note['user']['userId'] ?? '',
                 'avatar' => $note['user']['avatar'] ?? '',
             ],
-            // 优先使用 urlDefault (通常是无水印高清图)，如果不存在则回退到 urlPre
-            'cover' => $this->processImageUrl($note['imageList'][0]['urlDefault'] ?? ($note['imageList'][0]['urlPre'] ?? ($note['cover']['url'] ?? ''))),
+            'cover' => $this->processImageUrl($coverUrl),
             'url' => null,
             'images' => [],
             'live_photo' => [] // 实况图
@@ -312,6 +354,7 @@ class XiaohongshuParser
             // 优先收集 h265 (通常无水印且画质更好)
             if (isset($note['video']['media']['stream']['h265']) && is_array($note['video']['media']['stream']['h265'])) {
                 foreach ($note['video']['media']['stream']['h265'] as $stream) {
+                    $stream['_codec'] = 'h265';
                     $streams[] = $stream;
                 }
             }
@@ -319,14 +362,24 @@ class XiaohongshuParser
             // 其次收集 h264
             if (isset($note['video']['media']['stream']['h264']) && is_array($note['video']['media']['stream']['h264'])) {
                 foreach ($note['video']['media']['stream']['h264'] as $stream) {
+                    $stream['_codec'] = 'h264';
                     $streams[] = $stream;
                 }
             }
 
             // 如果有可用流，按画质排序
             if (!empty($streams)) {
-                // 按平均码率降序排序，码率越高画质通常越好
+                // 按平均码率降序排序，但优先保留 h265
                 usort($streams, function($a, $b) {
+                    // 1. 优先 h265
+                    $codecA = $a['_codec'] ?? '';
+                    $codecB = $b['_codec'] ?? '';
+                    if ($codecA !== $codecB) {
+                        if ($codecA === 'h265') return -1;
+                        if ($codecB === 'h265') return 1;
+                    }
+
+                    // 2. 其次按码率
                     $bitrateA = $a['avgBitrate'] ?? ($a['videoBitrate'] ?? 0);
                     $bitrateB = $b['avgBitrate'] ?? ($b['videoBitrate'] ?? 0);
                     return $bitrateB - $bitrateA;
@@ -372,7 +425,7 @@ class XiaohongshuParser
 
                 if ($liveVideoUrl) {
                     $result['live_photo'][] = [
-                        'image' => $this->processImageUrl($img['urlDefault'] ?? ''),
+                        'image' => $this->processImageUrl($img['urlDefault'] ?? ($img['urlPre'] ?? '')),
                         'video' => $liveVideoUrl
                     ];
                 }
