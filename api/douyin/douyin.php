@@ -1,38 +1,519 @@
 <?php
 /**
  * @Author: JH-Ahua
- * @CreateTime: 2026/1/29 下午5:29
+ * @CreateTime: 2026/1/29 下午9:21
  * @email: admin@bugpk.com
  * @blog: www.jiuhunwl.cn
  * @Api: api.bugpk.com
- * @tip: 抖音解析统一接口,支持短视频、图集、实况
+ * @tip: 整合视频、图文、图集、实况解析
  */
 
-require_once 'DouyinParser.php';
+class DouyinParser
+{
+    private $headers;
+    private $cookie;
+    private $userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
-header("Access-Control-Allow-Origin: *");
-header('Content-type: application/json');
-
-// 获取请求参数
-$url = null;
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $fullUrl = $_SERVER['REQUEST_URI'];
-    $urlParamPos = strpos($fullUrl, 'url=');
-    if ($urlParamPos !== false) {
-        $encodedUrl = substr($fullUrl, $urlParamPos + 4);
-        $url = urldecode($encodedUrl);
+    public function __construct()
+    {
+        $this->headers = [
+            'User-Agent: ' . $this->userAgent,
+            'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+            'Accept-Language: zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+        ];
+        // 默认 Cookie，可通过 setCookie 方法覆盖
+        $this->cookie = "";
     }
-} else {
-    $url = $_POST['url'] ?? null;
+
+    /**
+     * 设置Cookie
+     */
+    public function setCookie($cookie)
+    {
+        $this->cookie = $cookie;
+    }
+
+    /**
+     * 统一输出函数
+     */
+    private function output($code, $msg, $data = [])
+    {
+        return json_encode([
+            'code' => $code,
+            'msg' => $msg,
+            'data' => $data
+        ], 480);
+    }
+
+    /**
+     * 发送HTTP请求
+     */
+    private function request($url, $customHeaders = [], $returnHeader = false)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+
+        $headers = array_merge($this->headers, $customHeaders);
+        if ($this->cookie) {
+            curl_setopt($ch, CURLOPT_COOKIE, $this->cookie);
+        }
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        if ($returnHeader) {
+            curl_setopt($ch, CURLOPT_HEADER, true);
+            curl_setopt($ch, CURLOPT_NOBODY, true);
+        }
+
+        $response = curl_exec($ch);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($error) {
+            return false;
+        }
+        return $response;
+    }
+
+    /**
+     * 获取重定向后的真实链接
+     */
+    private function getRealUrl($url)
+    {
+        // 方案一：优先使用 get_headers
+        stream_context_set_default([
+            'http' => [
+                'method' => 'GET',
+                'header' => "User-Agent: " . $this->userAgent
+            ]
+        ]);
+
+        $headers = @get_headers($url, 1);
+
+        if (isset($headers['Location'])) {
+            $location = $headers['Location'];
+            if (is_array($location)) {
+                // 优先寻找包含 video/note/modal_id 等特征的链接
+                foreach ($location as $loc) {
+                    if ($this->extractId($loc)) {
+                        return $loc;
+                    }
+                }
+                return $location[0];
+            }
+            return $location;
+        }
+
+        // 方案二：cURL 备选
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_HEADER, true);
+        curl_setopt($ch, CURLOPT_NOBODY, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+        curl_exec($ch);
+        $realUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+        curl_close($ch);
+
+        return $realUrl ?: $url;
+    }
+
+    /**
+     * 提取ID
+     */
+    private function extractId($url)
+    {
+        // 匹配 URL 中的数字 ID (通常是 video/xxx 或 modal_id=xxx)
+        if (preg_match('/\/video\/(\d+)/', $url, $matches)) {
+            return $matches[1];
+        }
+        if (preg_match('/modal_id=(\d+)/', $url, $matches)) {
+            return $matches[1];
+        }
+        if (preg_match('/note\/(\d+)/', $url, $matches)) {
+            return $matches[1];
+        }
+        // 尝试匹配纯数字 (防止某些短链解开后直接是ID)
+        if (preg_match('/^(\d+)$/', $url, $matches)) {
+            return $matches[1];
+        }
+        if (preg_match('/note\/(\d+)/', $url, $matches)) {
+            return $matches[1];
+        }
+        // 匹配 share/slides/xxx (新增)
+        if (preg_match('/\/share\/slides\/(\d+)/', $url, $matches)) {
+            return $matches[1];
+        }
+        // 匹配 share/video/xxx (新增)
+        if (preg_match('/\/share\/video\/(\d+)/', $url, $matches)) {
+            return $matches[1];
+        }
+        // 尝试匹配纯数字 (防止某些短链解开后直接是ID)
+        return null;
+    }
+
+    /**
+     * 主解析方法
+     */
+    public function parse($url)
+    {
+        if (empty($url)) {
+            return $this->output(400, '请输入抖音链接');
+        }
+
+        // 预处理域名
+        $domain = parse_url($url, PHP_URL_HOST);
+        // 如果是短链接域名或不包含 video/modal_id 等特征，尝试获取重定向链接
+        if ($domain == 'v.douyin.com' || strpos($url, 'douyin.com') === false || !$this->extractId($url)) {
+            $url = $this->getRealUrl($url);
+        }
+
+        $id = $this->extractId($url);
+        if (!$id) {
+            return $this->output(400, '链接格式错误，无法提取ID。处理后的链接: ' . $url);
+        }
+
+        // 使用 dylive.php 中的 API 接口方式获取数据 (通常比页面解析更稳定)
+        // 注意：这里需要有效的 Cookie
+        $apiUrl = 'https://www.douyin.com/user/self?modal_id=' . $id . '&showTab=like';
+        $response = $this->request($apiUrl);
+
+        if (!$response) {
+            return $this->output(500, '请求失败');
+        }
+
+        $data = $this->extractJson($response);
+        if ($data) {
+            return $this->formatData($data);
+        }
+
+        return $this->output(404, '解析失败，未找到有效内容');
+    }
+
+    /**
+     * 提取并解析 JSON 数据
+     */
+    private function extractJson($html)
+    {
+        $startStr = '<script id="RENDER_DATA" type="application/json">';
+        $endStr = '</script>';
+
+        $posStart = strpos($html, $startStr);
+        if ($posStart === false) {
+            // 尝试另一种模式 (douyin.php 中的模式)
+            $pattern = '/window\._ROUTER_DATA\s*=\s*(.*?)\<\/script>/s';
+            if (preg_match($pattern, $html, $matches)) {
+                $json = json_decode($matches[1], true);
+                if (isset($json['loaderData'])) {
+                    // 需要根据 loaderData 结构提取 videoDetail
+                    // 这里的 key 可能是动态的，如 video_(id)/page
+                    foreach ($json['loaderData'] as $key => $value) {
+                        if (strpos($key, 'video_') === 0 && isset($value['videoInfoRes']['item_list'][0])) {
+                            return $value['videoInfoRes']['item_list'][0];
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        $jsonStr = substr($html, $posStart + strlen($startStr));
+        $posEnd = strpos($jsonStr, $endStr);
+        if ($posEnd === false) {
+            return null;
+        }
+
+        $jsonStr = substr($jsonStr, 0, $posEnd);
+        $jsonStr = urldecode($jsonStr); // 抖音 RENDER_DATA 通常经过 URL 编码
+        $data = json_decode($jsonStr, true);
+
+        if (isset($data['app']['videoDetail'])) {
+            return $data['app']['videoDetail'];
+        }
+
+        return null;
+    }
+
+    /**
+     * 格式化数据 (统一为小红书格式)
+     */
+    private function formatData($detail)
+    {
+        $result = [
+            'type' => 'unknown',
+            'title' => $detail['desc'] ?? '',
+            'desc' => $detail['desc'] ?? '',
+            'author' => [
+                'name' => $detail['authorInfo']['nickname'] ?? ($detail['author']['nickname'] ?? ''),
+                'id' => $detail['authorInfo']['uid'] ?? ($detail['author']['uid'] ?? ''),
+                'avatar' => $detail['authorInfo']['avatarUri'] ?? ($detail['author']['avatar_thumb']['url_list'][0] ?? ''),
+            ],
+            'cover' => '',
+            'url' => null, // 视频链接
+            'video_backup' => null,
+            'images' => [],
+            'live_photo' => [],
+            'music' => [
+                'title' => $detail['music']['musicName'] ?? ($detail['music']['title'] ?? ''),
+                'author' => $detail['music']['ownerNickname'] ?? ($detail['music']['author'] ?? ''),
+                'url' => $detail['music']['playUrl']['uri'] ?? ($detail['music']['play_url']['uri'] ?? ''),
+                'cover' => $detail['music']['coverThumb']['urlList'][0] ?? ($detail['music']['cover_thumb']['url_list'][0] ?? '')
+            ]
+        ];
+
+        // 提取封面 (尝试多种字段)
+        $cover = '';
+        // 1. 尝试 originCover (原图封面)
+        if (isset($detail['video']['originCover']['urlList'][0])) {
+            $cover = $detail['video']['originCover']['urlList'][0];
+        } elseif (isset($detail['video']['origin_cover']['url_list'][0])) {
+            $cover = $detail['video']['origin_cover']['url_list'][0];
+        } elseif (isset($detail['video']['originCover'])) {
+            $cover = $detail['video']['originCover'];
+        } elseif (isset($detail['video']['originCoverUrlList'][0])) {
+            $cover = $detail['video']['originCoverUrlList'][0];
+        }
+
+        // 2. 尝试 cover (普通封面)
+        if (!$cover) {
+            // 某些情况下结构可能是 cover.url_list，也可能是 cover.urlList
+            $cover = $detail['video']['cover']['urlList'][0] ?? ($detail['video']['cover']['url_list'][0] ?? '');
+
+            // 如果 cover 是字符串 (直接是 URL)
+            if (!$cover && isset($detail['video']['cover']) && is_string($detail['video']['cover'])) {
+                $cover = $detail['video']['cover'];
+            }
+        }
+
+        // 补充：检查是否直接在 detail.cover 字段 (某些图文类型)
+        if (!$cover && isset($detail['cover']['url_list'][0])) {
+            $cover = $detail['cover']['url_list'][0];
+        }
+
+        // 3. 尝试 dynamicCover (动态封面)
+        if (!$cover) {
+            $cover = $detail['video']['dynamicCover']['urlList'][0] ?? ($detail['video']['dynamic_cover']['url_list'][0] ?? '');
+        }
+
+        // 4. 尝试 douyin.php 中的路径逻辑 (针对 loaderData/videoInfoRes 结构)
+        if (!$cover && isset($detail['videoInfoRes']['item_list'][0]['video']['cover']['url_list'][0])) {
+            $cover = $detail['videoInfoRes']['item_list'][0]['video']['cover']['url_list'][0];
+        }
+
+        $result['cover'] = $cover;
+
+        // 判断类型和提取资源
+        $images = $detail['images'] ?? [];
+        if (!empty($images)) {
+            // 图文/图集/实况
+            $result['type'] = 'image';
+
+            foreach ($images as $img) {
+                // 提取图片 URL
+                $imgUrl = $img['urlList'][0] ?? ($img['url_list'][0] ?? '');
+                if ($imgUrl) {
+                    $result['images'][] = $imgUrl;
+                }
+
+                // 提取实况视频 (Live Photo)
+                // 抖音实况通常在 images 列表的 item 中包含 video 字段 (与普通图文不同)
+                $liveVideoUrl = null;
+                $videoInfo = $img['video'] ?? [];
+
+                // 1. 尝试 playAddr (对象数组结构，如 dylive.json)
+                if (isset($videoInfo['playAddr']) && is_array($videoInfo['playAddr'])) {
+                    $liveVideoUrl = null;
+                    $v26Candidate = null;
+                    // 优先匹配包含 v3-web 的链接
+                    foreach ($videoInfo['playAddr'] as $addr) {
+                        if (isset($addr['src'])) {
+                            if (strpos($addr['src'], 'v3-web') !== false) {
+                                $liveVideoUrl = $addr['src'];
+                                break;
+                            }
+                            if (strpos($addr['src'], 'v26-web') !== false) {
+                                $v26Candidate = $addr['src'];
+                            }
+                        }
+                    }
+
+                    if (!$liveVideoUrl && $v26Candidate) {
+                        $liveVideoUrl = preg_replace('/:\/\/([^\/]+)/', '://v26-luna.douyinvod.com', $v26Candidate);
+                    }
+
+                    // 没找到 v3-web，则回退到备用逻辑 (优先取第二个，没有则第一个)
+                    if (!$liveVideoUrl) {
+                        $liveVideoUrl = $videoInfo['playAddr'][1]['src'] ?? ($videoInfo['playAddr'][0]['src'] ?? null);
+                    }
+                }
+
+                // 2. 尝试 play_addr.url_list (字符串数组结构)
+                if (!$liveVideoUrl && isset($videoInfo['play_addr']['url_list'])) {
+                    $urlList = $videoInfo['play_addr']['url_list'];
+                    $v26Candidate = null;
+                    // 优先匹配包含 v3-web 的链接
+                    foreach ($urlList as $url) {
+                        if (strpos($url, 'v3-web') !== false) {
+                            $liveVideoUrl = $url;
+                            break;
+                        }
+                        if (strpos($url, 'v26-web') !== false) {
+                            $v26Candidate = $url;
+                        }
+                    }
+
+                    if (!$liveVideoUrl && $v26Candidate) {
+                        $liveVideoUrl = preg_replace('/:\/\/([^\/]+)/', '://v26-luna.douyinvod.com', $v26Candidate);
+                    }
+
+                    // 没找到 v3-web，则回退到备用逻辑
+                    if (!$liveVideoUrl) {
+                        $liveVideoUrl = $urlList[1] ?? ($urlList[0] ?? null);
+                    }
+                }
+
+                // 3. 尝试 playApi
+                if (!$liveVideoUrl) {
+                    $liveVideoUrl = $videoInfo['playApi'] ?? null;
+                }
+
+                if ($liveVideoUrl) {
+                    $liveVideoUrl = str_replace('playwm', 'play', $liveVideoUrl);
+                    $result['live_photo'][] = [
+                        'image' => $imgUrl,
+                        'video' => $liveVideoUrl
+                    ];
+                }
+            }
+
+            // 如果提取到了实况视频，修正类型为实况
+            if (!empty($result['live_photo'])) {
+                $result['type'] = 'live';
+            }
+        } else {
+            // 视频
+            $result['type'] = 'video';
+
+            // 使用新逻辑提取最高画质视频
+            $videoInfo = $this->extractHighestQualityVideo($detail);
+            $result['url'] = $videoInfo['url'];
+            $result['video_backup'] = $videoInfo['backup'];
+        }
+
+        return $this->output(200, '解析成功', $result);
+    }
+
+    /**
+     * 提取最高画质视频链接
+     */
+    private function extractHighestQualityVideo($detail)
+    {
+        $url = null;
+        $backup = [];
+
+        // 尝试从 bitRateList 中提取
+        if (isset($detail['video']['bitRateList']) && is_array($detail['video']['bitRateList'])) {
+            $bitRateList = $detail['video']['bitRateList'];
+
+            // 按 bitRate 降序排序
+            usort($bitRateList, function ($a, $b) {
+                return ($b['bitRate'] ?? 0) - ($a['bitRate'] ?? 0);
+            });
+
+            // 遍历寻找合适的链接
+            foreach ($bitRateList as $rateItem) {
+                $playAddr = $rateItem['playAddr'][0]['src'] ?? ($rateItem['play_addr']['url_list'][0] ?? null);
+                if ($playAddr) {
+                    // 检查是否包含 v3-web 域名 (通常更稳定)
+                    // 如果 playAddr 是数组，尝试找到 v3-web 的链接
+                    $candidates = [];
+                    if (isset($rateItem['playAddr']) && is_array($rateItem['playAddr'])) {
+                        foreach ($rateItem['playAddr'] as $pa) {
+                            if (isset($pa['src'])) $candidates[] = $pa['src'];
+                        }
+                    } elseif (isset($rateItem['play_addr']['url_list'])) {
+                        $candidates = $rateItem['play_addr']['url_list'];
+                    }
+
+                    if (empty($candidates)) continue;
+
+                    // 1. 在当前画质中选择最佳 URL
+                    $currentBestUrl = null;
+                    $v3Link = null;
+                    $v26Link = null;
+
+                    foreach ($candidates as $candidate) {
+                        if (strpos($candidate, 'v3-web') !== false) {
+                            $v3Link = $candidate;
+                            break; // 找到 v3 优先使用
+                        }
+                        if (strpos($candidate, 'v26-web') !== false) {
+                            $v26Link = $candidate;
+                        }
+                    }
+
+                    if ($v3Link) {
+                        $currentBestUrl = $v3Link;
+                    } elseif ($v26Link) {
+                        $currentBestUrl = preg_replace('/:\/\/([^\/]+)/', '://v26-luna.douyinvod.com', $v26Link);
+                    } else {
+                        $currentBestUrl = $candidates[0];
+                    }
+
+                    // 2. 如果全局 URL 尚未设置，使用当前最佳
+                    if (!$url) {
+                        $url = $currentBestUrl;
+                    }
+
+                    // 3. 将所有非主 URL 的链接加入备用
+                    foreach ($candidates as $candidate) {
+                        // 如果是 v26 链接，也进行域名替换，保持一致性
+                        if (strpos($candidate, 'v26-web') !== false) {
+                            $candidate = preg_replace('/:\/\/([^\/]+)/', '://v26-luna.douyinvod.com', $candidate);
+                        }
+
+                        // 排除已选用的主 URL
+                        if ($candidate !== $url && !in_array($candidate, $backup)) {
+                            $backup[] = $candidate;
+                        }
+                    }
+                }
+
+                if ($url && !empty($backup)) break; // 找到主备链接后停止
+            }
+        }
+
+        // 如果 bitRateList 没找到，尝试旧逻辑
+        if (!$url) {
+            $uri = $detail['video']['uri'] ?? '';
+            $playApi = $detail['video']['playApi'] ?? ($detail['video']['play_addr']['url_list'][0] ?? '');
+
+            if ($playApi) {
+                $url = str_replace('playwm', 'play', $playApi);
+            } elseif ($uri) {
+                $url = 'https://aweme.snssdk.com/aweme/v1/play/?video_id=' . $uri . '&ratio=720p&line=0';
+            }
+
+            // 备用
+            $urlList = $detail['video']['play_addr']['url_list'] ?? [];
+            if (count($urlList) > 1) {
+                foreach ($urlList as $index => $link) {
+                    if ($index === 0) continue;
+                    $backup[] = str_replace('playwm', 'play', $link);
+                }
+            }
+        }
+
+        return ['url' => $url, 'backup' => $backup];
+    }
 }
-
-if (!$url && isset($_GET['url'])) {
-    $url = $_GET['url'];
-}
-
-// 配置Cookie (建议定期更新)
-$cookie = "__ac_nonce=069747c3c00a39b02209; __ac_signature=_02B4Z6wo00f01Oh5gQgAAIDDZdE4gwZ1uzjoWYWAAFNveb; enter_pc_once=1; UIFID_TEMP=5bdad390e71fd6e6e69e3cafe6018169c2447c8bc0b8484cc0f203a274f99fdb902edc79e8520fffc343b4d0d46608cb8ebbe4f53b6736ebe4449b6f82cbd3383a01a60583305a098fb6748d5f84e31fa8bc69f232e73471133ec823e296a0db58f9e4880cf2d87221183f8579a761ad; x-web-secsdk-uid=f758a5d5-912c-4e3a-acc6-0eb955aa17a9; s_v_web_id=verify_mks0u3o1_Ph4Qzhol_RtaB_4JaO_A9O4_pvW9UcdL2AY4; douyin.com; device_web_cpu_core=16; device_web_memory_size=8; architecture=amd64; hevc_supported=true; home_can_add_dy_2_desktop=%220%22; dy_swidth=1440; dy_sheight=960; strategyABtestKey=%221769241736.718%22; fpk1=U2FsdGVkX1+5C/QgP0TQmjsAs+K4aCr8w9J4IgzdxIYFJ2rTrL1I9bAe3fQu/xwon0Flh9pMKqHbWk4d5mTpsg==; fpk2=89db729cfcdc129111f017b0e7ac324a; record_force_login=%7B%22timestamp%22%3A1769241737226%2C%22force_login_video%22%3A2%2C%22force_login_live%22%3A0%2C%22force_login_direct_video%22%3A0%7D; passport_csrf_token=fd89754982c7900e01196a046bcecf6c; passport_csrf_token_default=fd89754982c7900e01196a046bcecf6c; ttwid=1%7C7ZIyYefHejYYhhTLRKdKPhhegAiN8m5LAluTrSzy4TI%7C1769241741%7Cef551a5c8581b07ad3a0737938f41cccd8aec1bf670d32e4fe083e9edb04db75; bd_ticket_guard_client_web_domain=2; gulu_source_res=eyJwX2luIjoiMzRlYjBiNWI5YTNlY2RkMjY3ZGQzOTBkNjhjMjk1MGIzMjY2YmUyMDc3MWViYmZlMTIzNDM4ZDMxZmNkYTVjOCJ9; sdk_source_info=7e276470716a68645a606960273f276364697660272927676c715a6d6069756077273f276364697660272927666d776a68605a607d71606b766c6a6b5a7666776c7571273f275e58272927666a6b766a69605a696c6061273f27636469766027292762696a6764695a7364776c6467696076273f275e582729277672715a646971273f2763646976602729277f6b5a666475273f2763646976602729276d6a6e5a6b6a716c273f2763646976602729276c6b6f5a7f6367273f27636469766027292771273f273130353731323431373c333234272927676c715a75776a716a666a69273f2763646976602778; bit_env=-T0NSikZ0kq7ki2oI0NwGGVFmOKr8ItUAt44dtAcG9qzFOJ9qW_BeYoBawZNGEjRy7j7-UjDpPnK1azT8Lxy7b05Aw6FPQ_QlBgHTsiARTJ8S_iYAAnwVdqvLxpUYbBg5rXPBhMzZh3v-iFfb1tEg40S5vqR40HstE4WWxwt_ZjvalZUl5BkDH4loie42gljLcrG21FhyNx0Lx5igfAy3qqFxzy0t87IiY6LgW0n0P-M250YjA1Q7Kh6bMKWl1TbI8Vy-wT4pFX68GLT3BO1iDEU0swZjP5J-0IPUYoB_2zOJ27wf1j3rLkaiV_AJs9ESnoKSx34Uj21Xf3dSWk0KcZvHiu7R54s3eIs5Lba4_I0q-cN7WvUHtRDjNKN4D3HL_fuRxzo9vPnJYHizO4Cz_IQolFbo8bH6nSsmLuQs-EXALXDRARMoHnzCWvkusz9xoRJDReLqWJ8L6Kq3gU11fJDt_Wyd6JuL7Zo_NCr_S_ixgH4iMBeNlCeceZ_gEij; passport_auth_mix_state=1fd69ilm4gnkejgjjc1jrp8pw8gk7eg7ja6r3re0agcm2syb; passport_mfa_token=Cjekc7FLkRe8nTiQ6JIKc2m6QrxcVnF7lJdkXABr3zXTFUpSrbHLFN6HNipHazh%2Bg6B%2FDObXgm2uGkoKPAAAAAAAAAAAAABP%2Fcv0%2B3Kn9e0u4rVXlFeyGw9EgmVH14czZpXg4%2F3yQzQgzfNFh7P9YK4SxwtpSvWrZBD34IcOGPax0WwgAiIBAwqZGu8%3D; d_ticket=2cbf18ee5d3a7c1ff2aa79e06f735124f9097; passport_assist_user=CkHRtYaBaphNaYbuo-JhEUpjcJLXFFO_zCB7FVuR8AOjDpz5427arT-hRAWB8xxidPBPZmHnKCV90x1ezfj25Zz-nRpKCjwAAAAAAAAAAAAAT_0wyPtRO-Hgg_Z-c_Y7qzSN-VE30dPcCQyEGsTgzxdD_k_uSQqH2X293tx31gdOVk0QreCHDhiJr9ZUIAEiAQPPEg8-; n_mh=LCZmHbi1qggZFZgOpguLhKKZaa76anCSi3Eafol-3yY; sid_guard=81c83f19bc459709dcc3c877b2a82683%7C1769241765%7C5184000%7CWed%2C+25-Mar-2026+08%3A02%3A45+GMT; uid_tt=c74427ed12dd696826dd1c78b24d5757; uid_tt_ss=c74427ed12dd696826dd1c78b24d5757; sid_tt=81c83f19bc459709dcc3c877b2a82683; sessionid=81c83f19bc459709dcc3c877b2a82683; sessionid_ss=81c83f19bc459709dcc3c877b2a82683; session_tlb_tag=sttt%7C6%7Cgcg_GbxFlwncw8h3sqgmg_________-0gA8LLzWKz0PzIt0lEfPxzDfpk7B2VZT15wIFGnL2g_Q%3D; is_staff_user=false; sid_ucp_v1=1.0.0-KGQ4NzU4Y2QxMDkzZjI2OWMzMGJiNDgyOWUzZTlmMTk3NTc4ZDM4NjAKIQjkvIHs-MyzBxCl-dHLBhjvMSAMMN2w47sGOAdA9AdIBBoCbGYiIDgxYzgzZjE5YmM0NTk3MDlkY2MzYzg3N2IyYTgyNjgz; ssid_ucp_v1=1.0.0-KGQ4NzU4Y2QxMDkzZjI2OWMzMGJiNDgyOWUzZTlmMTk3NTc4ZDM4NjAKIQjkvIHs-MyzBxCl-dHLBhjvMSAMMN2w47sGOAdA9AdIBBoCbGYiIDgxYzgzZjE5YmM0NTk3MDlkY2MzYzg3N2IyYTgyNjgz; _bd_ticket_crypt_cookie=217beaa8b5e3f5fbf40efc7daf2926b7; __security_mc_1_s_sdk_sign_data_key_web_protect=30aada9f-479e-9a52; __security_mc_1_s_sdk_cert_key=41770370-4494-a52b; __security_mc_1_s_sdk_crypt_sdk=80a07cc0-47b2-bd31; __security_server_data_status=1; login_time=1769241765550; publish_badge_show_info=%220%2C0%2C0%2C1769241765990%22; UIFID=5bdad390e71fd6e6e69e3cafe6018169c2447c8bc0b8484cc0f203a274f99fdb902edc79e8520fffc343b4d0d46608cb8ebbe4f53b6736ebe4449b6f82cbd3388bda253fd74a1fd68e95d0d3ab57d3a4d6788fb2d1ba4a10ccd9660a24cf14eca7bb4f1c95a5733c602a7b83a6121cf2485703e03fcd0c484cd14ced1f92f8eeb6a55b2ad03a204634fbfc41da2649c4154e9714978e938dbcbffedfefe97731861cad4a6b0be9d266062bbb3a1b711228cf975e72333ee04ffe82d0cbcf264c; stream_player_status_params=%22%7B%5C%22is_auto_play%5C%22%3A0%2C%5C%22is_full_screen%5C%22%3A0%2C%5C%22is_full_webscreen%5C%22%3A0%2C%5C%22is_mute%5C%22%3A1%2C%5C%22is_speed%5C%22%3A1%2C%5C%22is_visible%5C%22%3A0%7D%22; SelfTabRedDotControl=%5B%5D; is_dash_user=1; FOLLOW_NUMBER_YELLOW_POINT_INFO=%22MS4wLjABAAAA24iQuM84Uss_49_SrNxWD3E7IqdO_kM7cATt6Tti25z9Xyts4vPB6JHmgmNlviPN%2F1769270400000%2F0%2F1769241768576%2F0%22; volume_info=%7B%22isMute%22%3Afalse%2C%22isUserMute%22%3Afalse%2C%22volume%22%3A0.5%7D; my_rd=2; stream_recommend_feed_params=%22%7B%5C%22cookie_enabled%5C%22%3Atrue%2C%5C%22screen_width%5C%22%3A1440%2C%5C%22screen_height%5C%22%3A960%2C%5C%22browser_online%5C%22%3Atrue%2C%5C%22cpu_core_num%5C%22%3A16%2C%5C%22device_memory%5C%22%3A8%2C%5C%22downlink%5C%22%3A7.4%2C%5C%22effective_type%5C%22%3A%5C%224g%5C%22%2C%5C%22round_trip_time%5C%22%3A150%7D%22; bd_ticket_guard_client_data=eyJiZC10aWNrZXQtZ3VhcmQtdmVyc2lvbiI6MiwiYmQtdGlja2V0LWd1YXJkLWl0ZXJhdGlvbi12ZXJzaW9uIjoxLCJiZC10aWNrZXQtZ3VhcmQtcmVlLXB1YmxpYy1rZXkiOiJCT1pMYWFVYnJyWUlnMzFmSFI1VE9xR3pHRGJueEkvNGpFaEMyb0V1NmxZWjlKaEMxd0p2ZXRPSWducGJLZGNjQlhWZUVrMEdvK2lIT0NwOTVicTQ1ckE9IiwiYmQtdGlja2V0LWd1YXJkLXdlYi12ZXJzaW9uIjoyfQ%3D%3D; odin_tt=80489a6412881e9050b7c626e9b4f5df092eac9e39adf0aedb2985628e95693e0792a432ba2e219a21c2cd472ebecafb03cdf142e633d6b3627408ce014d744b; biz_trace_id=5c08d9df; bd_ticket_guard_client_data_v2=eyJyZWVfcHVibGljX2tleSI6IkJPWkxhYVVicnJZSWczMWZIUjVUT3FHekdEYm54SS80akVoQzJvRXU2bFlaOUpoQzF3SnZldE9JZ25wYktkY2NCWFZlRWswR28raUhPQ3A5NWJxNDVyQT0iLCJ0c19zaWduIjoidHMuMi40ZGYxOTFhZDZmNThmYWEwZDU0NzY2NWY0YmFjODRkMGM3ZGQ5YjM0ZjQ4YmIyNGU4YjgwYjVjMTdhM2JjNDliYzRmYmU4N2QyMzE5Y2YwNTMxODYyNGNlZGExNDkxMWNhNDA2ZGVkYmViZWRkYjJlMzBmY2U4ZDRmYTAyNTc1ZCIsInJlcV9jb250ZW50Ijoic2VjX3RzIiwicmVxX3NpZ24iOiJCZHFxdXlLbTJ3ekFtMm5GNGVYRnNPOFYzQytNY01lTThpMFdmOVgrZlpvPSIsInNlY190cyI6IiNzZTYwWXpUOFRNbE9hK2M5ZkdKOEpQS3lsRmx0dVhPcWZmbGQxa0tMTFluYzEyVTh4Y0I3TEpJRi8wc3cifQ%3D%3D; FOLLOW_LIVE_POINT_INFO=%22MS4wLjABAAAA24iQuM84Uss_49_SrNxWD3E7IqdO_kM7cATt6Tti25z9Xyts4vPB6JHmgmNlviPN%2F1769270400000%2F0%2F0%2F1769242449770%22; IsDouyinActive=true";
-
-$parser = new DouyinParser();
-$parser->setCookie($cookie);
-echo $parser->parse($url);

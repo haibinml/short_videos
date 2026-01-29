@@ -15,6 +15,10 @@
   </div>
   <br />
   <div>
+    <a href="#项目简介">项目简介</a>
+    •
+    <a href="#重要声明">重要声明</a>
+    •
     <a href="#功能特点">功能特点</a>
     •
     <a href="#支持平台">支持平台</a>
@@ -25,16 +29,36 @@
     •
     <a href="#接口文档">接口文档</a>
     •
+    <a href="#贡献指南">贡献指南</a>
+    •
+    <a href="#许可证">许可证</a>
+    •
     <a href="#联系方式">联系方式</a>
+    •
+    <a href="#公众号">公众号</a>
   </div>
 </div>
+
+<style>
+  html {
+    scroll-behavior: smooth;
+  }
+  a {
+    text-decoration: none;
+    color: #0366d6;
+    transition: color 0.2s;
+  }
+  a:hover {
+    color: #0056b3;
+  }
+</style>
 
 ---
 
 ## 📋 目录
 
 - [项目简介](#项目简介)
-- [⚠️ 重要声明](#%EF%B8%8F-重要声明)
+- [重要声明](#重要声明)
 - [✨ 功能特点](#功能特点)
 - [🌐 支持平台](#支持平台)
 - [📦 安装部署](#安装部署)
@@ -47,6 +71,9 @@
 
 ---
 
+<span id="项目简介"></span>
+
+<span id="项目简介"></span>
 ## 🎯 项目简介
 
 本工具用于解析各大短视频平台的视频链接，获取视频的详细信息，包括：
@@ -60,7 +87,9 @@
 
 ---
 
-## ⚠️ 重要声明
+<span id="重要声明"></span>
+
+## 重要声明
 
 本项目为开源软件，遵循 MIT 许可证。任何个人或组织均可自由使用、修改和分发本项目的源代码。
 
@@ -72,6 +101,9 @@
 
 ---
 
+<span id="功能特点"></span>
+
+<span id="功能特点"></span>
 ## ✨ 功能特点
 
 - **多平台支持**：支持主流短视频平台的链接解析
@@ -83,6 +115,9 @@
 
 ---
 
+<span id="支持平台"></span>
+
+<span id="支持平台"></span>
 ## 🌐 支持平台
 
 | 平台                 | 接口文件           | 状态   |
@@ -100,6 +135,9 @@
 
 ---
 
+<span id="安装部署"></span>
+
+<span id="安装部署"></span>
 ## 📦 安装部署
 
 ### 环境要求
@@ -121,6 +159,9 @@ cd short_videos
 
 ---
 
+<span id="使用说明"></span>
+
+<span id="使用说明"></span>
 ## 🚀 使用说明
 
 ### 基础用法
@@ -182,6 +223,9 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
 
 ---
 
+<span id="接口文档"></span>
+
+<span id="接口文档"></span>
 ## 📖 接口文档
 
 ### 请求参数
@@ -217,6 +261,9 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
 
 ---
 
+<span id="贡献指南"></span>
+
+<span id="贡献指南"></span>
 ## 🤝 贡献指南
 
 欢迎贡献代码！请随时提交 Issue 和 Pull Request。
@@ -231,12 +278,18 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
 
 ---
 
+<span id="许可证"></span>
+
+<span id="许可证"></span>
 ## 📄 许可证
 
 本项目采用 MIT 许可证 - 详见 [LICENSE](https://github.com/OpenListTeam/jiuhunwl/short_videos/main/LICENSE) 文件。
 
 ---
 
+<span id="联系方式"></span>
+
+<span id="联系方式"></span>
 ## 📮 联系方式
 
 **作者**：JH-Ahua
@@ -249,6 +302,9 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
 
 ---
 
+<span id="公众号"></span>
+
+<span id="公众号"></span>
 ## 📱 公众号
 
 欢迎关注微信公众号获取更多资讯：

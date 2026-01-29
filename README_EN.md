@@ -1,5 +1,5 @@
 <div align="center">
-  <img width="100px" alt="logo" src="img/icon.png"/>
+  <img width="100px" alt="logo" src="https://img.jiuhunwl.cn/up/2025/05/23/68305545df6d7.png"/>
   <h1>Short Video Watermark Removal & Parsing API</h1>
   <p><em>Source code for short video watermark removal and parsing interface</em></p>
   <div>
@@ -15,6 +15,10 @@
   </div>
   <br />
   <div>
+    <a href="#about">About</a>
+    •
+    <a href="#important-notice">Important Notice</a>
+    •
     <a href="#features">Features</a>
     •
     <a href="#supported-platforms">Platforms</a>
@@ -25,16 +29,34 @@
     •
     <a href="#api-reference">API Reference</a>
     •
+    <a href="#contributing">Contributing</a>
+    •
+    <a href="#license">License</a>
+    •
     <a href="#contact">Contact</a>
   </div>
 </div>
+
+<style>
+  html {
+    scroll-behavior: smooth;
+  }
+  a {
+    text-decoration: none;
+    color: #0366d6;
+    transition: color 0.2s;
+  }
+  a:hover {
+    color: #0056b3;
+  }
+</style>
 
 ---
 
 ## 📋 Table of Contents
 
 - [About](#about)
-- [⚠️ Important Notice](#%EF%B8%8F-important-notice)
+- [Important Notice](#important-notice)
 - [✨ Features](#features)
 - [🌐 Supported Platforms](#supported-platforms)
 - [📦 Installation](#installation)
@@ -46,6 +68,9 @@
 
 ---
 
+<span id="about"></span>
+
+<span id="about"></span>
 ## 🎯 About
 
 This tool is designed to parse video links from various short video platforms and extract detailed information such as:
@@ -59,7 +84,9 @@ All responses are returned in structured JSON format for easy integration.
 
 ---
 
-## ⚠️ Important Notice
+<span id="important-notice"></span>
+
+## Important Notice
 
 This project is open-source software licensed under the MIT License. Any individual or organization is free to use,
 modify, and distribute the source code.
@@ -73,6 +100,9 @@ We encourage everyone to contribute and share code in accordance with open-sourc
 
 ---
 
+<span id="features"></span>
+
+<span id="features"></span>
 ## ✨ Features
 
 - **Multi-Platform Support**: Parse video links from various short video platforms
@@ -84,6 +114,9 @@ We encourage everyone to contribute and share code in accordance with open-sourc
 
 ---
 
+<span id="supported-platforms"></span>
+
+<span id="supported-platforms"></span>
 ## 🌐 Supported Platforms
 
 | Platform                          | API File       | Status   |
@@ -103,6 +136,9 @@ We encourage everyone to contribute and share code in accordance with open-sourc
 
 ---
 
+<span id="installation"></span>
+
+<span id="installation"></span>
 ## 📦 Installation
 
 ### Requirements
@@ -124,6 +160,9 @@ Upload the PHP files to your web server. No installation or configuration needed
 
 ---
 
+<span id="usage"></span>
+
+<span id="usage"></span>
 ## 🚀 Usage
 
 ### Basic Usage
@@ -185,6 +224,9 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
 
 ---
 
+<span id="api-reference"></span>
+
+<span id="api-reference"></span>
 ## 📖 API Reference
 
 ### Request Parameters
@@ -220,6 +262,9 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
 
 ---
 
+<span id="contributing"></span>
+
+<span id="contributing"></span>
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit issues and pull requests.
@@ -234,6 +279,9 @@ Contributions are welcome! Please feel free to submit issues and pull requests.
 
 ---
 
+<span id="license"></span>
+
+<span id="license"></span>
 ## 📄 License
 
 This project is licensed under the MIT License - see
@@ -241,6 +289,9 @@ the [LICENSE](https://github.com/OpenListTeam/jiuhunwl/short_videos/main/LICENSE
 
 ---
 
+<span id="contact"></span>
+
+<span id="contact"></span>
 ## 📮 Contact
 
 **Author**: JH-Ahua
