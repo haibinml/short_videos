@@ -147,20 +147,41 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
     "code": 200,
     "msg": "Parsing successful",
     "data": {
-      "author": "Author Name",
-      "authorID": "123456789",
-      "title": "Video Title",
-      "desc": "Video description content",
-      "avatar": "https://example.com/avatar.jpg",
-      "cover": "https://example.com/cover.jpg",
-      "url": "https://example.com/video.mp4",
-      "imgurl": [
-        "https://example.com/image1.jpg",
-        "https://example.com/image2.jpg"
-      ]
+        "author": "Author Name",
+        "authorID": "123456789",
+        "title": "Video Title",
+        "desc": "Video description content",
+        "avatar": "https://example.com/avatar.jpg",
+        "cover": "https://example.com/cover.jpg",
+        "url": "https://example.com/video.mp4",
+        "imgurl": [
+            "https://example.com/image1.jpg",
+            "https://example.com/image2.jpg"
+        ]
     }
 }
 ```
+
+### 📱 Douyin Cookie Acquisition Tutorial
+
+**Important Note:** Douyin parsing may require the use of cookies to improve parsing success rate.
+
+#### Acquisition Steps:
+
+1. Open browser and visit Douyin web version
+2. Log in to your Douyin account
+3. Press F12 to open developer tools
+4. Switch to the Network tab
+5. Refresh the page and find a request
+6. Find the Cookie field in the request headers
+7. Copy the complete Cookie value
+
+#### Visual Tutorial:
+
+<div align="center">
+  <img src="img/dycookie.jpg" alt="Douyin Cookie Acquisition Tutorial" width="600" />
+  <p><em>Douyin Cookie acquisition steps diagram</em></p>
+</div>
 
 ---
 

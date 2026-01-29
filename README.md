@@ -159,6 +159,27 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
 }
 ```
 
+### 📱 抖音 Cookie 获取教程
+
+**重要提示：** 抖音解析可能需要使用 Cookie 以提高解析成功率。
+
+#### 获取步骤：
+
+1. 打开浏览器，访问抖音网页版
+2. 登录您的抖音账号
+3. 按 F12 打开开发者工具
+4. 切换到 Network 标签页
+5. 刷新页面，找到一个请求
+6. 在请求头中找到 Cookie 字段
+7. 复制完整的 Cookie 值
+
+#### 图解教程：
+
+<div align="center">
+  <img src="img/dycookie.jpg" alt="抖音Cookie获取教程" width="600" />
+  <p><em>抖音Cookie获取步骤示意图</em></p>
+</div>
+
 ---
 
 ## 📖 接口文档
