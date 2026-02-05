@@ -37,30 +37,7 @@
   </div>
 </div>
 
-<script>
-  // Add smooth scrolling effect
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-      e.preventDefault();
-      const target = document.querySelector(this.getAttribute('href'));
-      if (target) {
-        target.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      }
-    });
-  });
-  // Add link hover effect
-  document.querySelectorAll('a').forEach(link => {
-    link.addEventListener('mouseenter', function() {
-      this.style.color = '#0056b3';
-    });
-    link.addEventListener('mouseleave', function() {
-      this.style.color = '#0366d6';
-    });
-  });
-</script>
+<!-- Smooth scrolling and link styles implemented via inline CSS -->
 
 ---
 

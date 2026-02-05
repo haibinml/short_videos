@@ -39,30 +39,7 @@
   </div>
 </div>
 
-<script>
-  // 添加平滑滚动效果
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-      e.preventDefault();
-      const target = document.querySelector(this.getAttribute('href'));
-      if (target) {
-        target.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      }
-    });
-  });
-  // 添加链接悬停效果
-  document.querySelectorAll('a').forEach(link => {
-    link.addEventListener('mouseenter', function() {
-      this.style.color = '#0056b3';
-    });
-    link.addEventListener('mouseleave', function() {
-      this.style.color = '#0366d6';
-    });
-  });
-</script>
+<!-- 平滑滚动和链接样式已通过内联CSS实现 -->
 
 ---
 
