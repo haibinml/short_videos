@@ -3,55 +3,66 @@
   <h1>短视频去水印解析接口</h1>
   <p><em>支持多平台短视频链接解析与去水印</em></p>
   <div>
-    <a href="https://github.com/OpenListTeam/jiuhunwl/short_videos/main/LICENSE">
+    <a href="https://github.com/OpenListTeam/jiuhunwl/short_videos/main/LICENSE" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">
       <img src="https://img.shields.io/github/license/jiuhunwl/short_videos" alt="许可证" />
     </a>
-    <a href="https://php.net">
+    <a href="https://php.net" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">
       <img src="https://img.shields.io/badge/PHP-8.0+-777BB4?style=flat&logo=php&logoColor=white" alt="PHP版本" />
     </a>
-    <a href="https://github.com/jiuhunwl/short_videos">
+    <a href="https://github.com/jiuhunwl/short_videos" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">
       <img src="https://img.shields.io/github/stars/jiuhunwl/short_videos?style=social" alt="GitHub星标" />
     </a>
   </div>
   <br />
   <div>
-    <a href="#项目简介">项目简介</a>
+    <a href="#项目简介" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">项目简介</a>
     •
-    <a href="#重要声明">重要声明</a>
+    <a href="#重要声明" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">重要声明</a>
     •
-    <a href="#功能特点">功能特点</a>
+    <a href="#功能特点" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">功能特点</a>
     •
-    <a href="#支持平台">支持平台</a>
+    <a href="#支持平台" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">支持平台</a>
     •
-    <a href="#安装部署">安装部署</a>
+    <a href="#安装部署" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">安装部署</a>
     •
-    <a href="#使用说明">使用说明</a>
+    <a href="#使用说明" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">使用说明</a>
     •
-    <a href="#接口文档">接口文档</a>
+    <a href="#接口文档" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">接口文档</a>
     •
-    <a href="#贡献指南">贡献指南</a>
+    <a href="#贡献指南" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">贡献指南</a>
     •
-    <a href="#许可证">许可证</a>
+    <a href="#许可证" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">许可证</a>
     •
-    <a href="#联系方式">联系方式</a>
+    <a href="#联系方式" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">联系方式</a>
     •
-    <a href="#公众号">公众号</a>
+    <a href="#公众号" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">公众号</a>
   </div>
 </div>
 
-<style>
-  html {
-    scroll-behavior: smooth;
-  }
-  a {
-    text-decoration: none;
-    color: #0366d6;
-    transition: color 0.2s;
-  }
-  a:hover {
-    color: #0056b3;
-  }
-</style>
+<script>
+  // 添加平滑滚动效果
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+  // 添加链接悬停效果
+  document.querySelectorAll('a').forEach(link => {
+    link.addEventListener('mouseenter', function() {
+      this.style.color = '#0056b3';
+    });
+    link.addEventListener('mouseleave', function() {
+      this.style.color = '#0366d6';
+    });
+  });
+</script>
 
 ---
 

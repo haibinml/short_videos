@@ -3,53 +3,64 @@
   <h1>Short Video Watermark Removal & Parsing API</h1>
   <p><em>Source code for short video watermark removal and parsing interface</em></p>
   <div>
-    <a href="https://github.com/OpenListTeam/jiuhunwl/short_videos/main/LICENSE">
+    <a href="https://github.com/OpenListTeam/jiuhunwl/short_videos/main/LICENSE" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">
       <img src="https://img.shields.io/github/license/jiuhunwl/short_videos" alt="License" />
     </a>
-    <a href="https://php.net">
+    <a href="https://php.net" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">
       <img src="https://img.shields.io/badge/PHP-8.0+-777BB4?style=flat&logo=php&logoColor=white" alt="PHP Version" />
     </a>
-    <a href="https://github.com/jiuhunwl/short_videos">
+    <a href="https://github.com/jiuhunwl/short_videos" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">
       <img src="https://img.shields.io/github/stars/jiuhunwl/short_videos?style=social" alt="GitHub Stars" />
     </a>
   </div>
   <br />
   <div>
-    <a href="#about">About</a>
+    <a href="#about" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">About</a>
     •
-    <a href="#important-notice">Important Notice</a>
+    <a href="#important-notice" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">Important Notice</a>
     •
-    <a href="#features">Features</a>
+    <a href="#features" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">Features</a>
     •
-    <a href="#supported-platforms">Platforms</a>
+    <a href="#supported-platforms" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">Platforms</a>
     •
-    <a href="#installation">Installation</a>
+    <a href="#installation" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">Installation</a>
     •
-    <a href="#usage">Usage</a>
+    <a href="#usage" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">Usage</a>
     •
-    <a href="#api-reference">API Reference</a>
+    <a href="#api-reference" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">API Reference</a>
     •
-    <a href="#contributing">Contributing</a>
+    <a href="#contributing" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">Contributing</a>
     •
-    <a href="#license">License</a>
+    <a href="#license" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">License</a>
     •
-    <a href="#contact">Contact</a>
+    <a href="#contact" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">Contact</a>
   </div>
 </div>
 
-<style>
-  html {
-    scroll-behavior: smooth;
-  }
-  a {
-    text-decoration: none;
-    color: #0366d6;
-    transition: color 0.2s;
-  }
-  a:hover {
-    color: #0056b3;
-  }
-</style>
+<script>
+  // Add smooth scrolling effect
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+  // Add link hover effect
+  document.querySelectorAll('a').forEach(link => {
+    link.addEventListener('mouseenter', function() {
+      this.style.color = '#0056b3';
+    });
+    link.addEventListener('mouseleave', function() {
+      this.style.color = '#0366d6';
+    });
+  });
+</script>
 
 ---
 
