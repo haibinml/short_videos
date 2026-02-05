@@ -3,7 +3,7 @@
   <h1>Short Video Watermark Removal & Parsing API</h1>
   <p><em>Source code for short video watermark removal and parsing interface</em></p>
   <div>
-    <a href="https://github.com/OpenListTeam/jiuhunwl/short_videos/main/LICENSE" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">
+    <a href="https://github.com/jiuhunwl/short_videos/main/LICENSE" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">
       <img src="https://img.shields.io/github/license/jiuhunwl/short_videos" alt="License" />
     </a>
     <a href="https://php.net" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">
@@ -273,7 +273,7 @@ Contributions are welcome! Please feel free to submit issues and pull requests.
 ## 📄 License
 
 This project is licensed under the MIT License - see
-the [LICENSE](https://github.com/OpenListTeam/jiuhunwl/short_videos/main/LICENSE) file for details.
+the [LICENSE](https://github.com/jiuhunwl/short_videos/main/LICENSE) file for details.
 
 ---
 

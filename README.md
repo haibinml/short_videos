@@ -3,7 +3,7 @@
   <h1>短视频去水印解析接口</h1>
   <p><em>支持多平台短视频链接解析与去水印</em></p>
   <div>
-    <a href="https://github.com/OpenListTeam/jiuhunwl/short_videos/main/LICENSE" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">
+    <a href="https://github.com/jiuhunwl/short_videos/main/LICENSE" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">
       <img src="https://img.shields.io/github/license/jiuhunwl/short_videos" alt="许可证" />
     </a>
     <a href="https://php.net" style="text-decoration: none; color: #0366d6; transition: color 0.2s;">
@@ -271,7 +271,7 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
 <span id="许可证"></span>
 ## 📄 许可证
 
-本项目采用 MIT 许可证 - 详见 [LICENSE](https://github.com/OpenListTeam/jiuhunwl/short_videos/main/LICENSE) 文件。
+本项目采用 MIT 许可证 - 详见 [LICENSE](https://github.com/jiuhunwl/short_videos/main/LICENSE) 文件。
 
 ---
 
