@@ -183,7 +183,6 @@ class DouyinParser
         // 注意：这里需要有效的 Cookie
         $apiUrl = 'https://www.douyin.com/user/self?modal_id=' . $id . '&showTab=like';
         $response = $this->request($apiUrl);
-
         if (!$response) {
             return $this->output(500, '请求失败');
         }
@@ -274,6 +273,10 @@ class DouyinParser
             $cover = $detail['video']['originCover']['urlList'][0];
         } elseif (isset($detail['video']['origin_cover']['url_list'][0])) {
             $cover = $detail['video']['origin_cover']['url_list'][0];
+        } elseif (isset($detail['video']['originCover'])) {
+            $cover = $detail['video']['originCover'];
+        } elseif (isset($detail['video']['originCoverUrlList'][0])) {
+            $cover = $detail['video']['originCoverUrlList'][0];
         }
 
         // 2. 尝试 cover (普通封面)
@@ -411,7 +414,7 @@ class DouyinParser
     private function extractHighestQualityVideo($detail)
     {
         $url = null;
-        $backup = null;
+        $backup = [];
 
         // 尝试从 bitRateList 中提取
         if (isset($detail['video']['bitRateList']) && is_array($detail['video']['bitRateList'])) {
@@ -437,31 +440,51 @@ class DouyinParser
                         $candidates = $rateItem['play_addr']['url_list'];
                     }
 
-                    $v26Candidate = null;
+                    if (empty($candidates)) continue;
+
+                    // 1. 在当前画质中选择最佳 URL
+                    $currentBestUrl = null;
+                    $v3Link = null;
+                    $v26Link = null;
+
                     foreach ($candidates as $candidate) {
                         if (strpos($candidate, 'v3-web') !== false) {
-                            if (!$url) {
-                                $url = $candidate; // 找到最高画质的 v3-web 链接
-                            } elseif (!$backup) {
-                                $backup = $candidate; // 备用
-                            }
-                        } elseif (strpos($candidate, 'v26-web') !== false) {
-                            $v26Candidate = $candidate;
+                            $v3Link = $candidate;
+                            break; // 找到 v3 优先使用
+                        }
+                        if (strpos($candidate, 'v26-web') !== false) {
+                            $v26Link = $candidate;
                         }
                     }
 
-                    // 如果没有找到 v3-web 链接，尝试使用 v26-web 并替换域名
-                    if (!$url && $v26Candidate) {
-                        $url = preg_replace('/:\/\/([^\/]+)/', '://v26-luna.douyinvod.com', $v26Candidate);
+                    if ($v3Link) {
+                        $currentBestUrl = $v3Link;
+                    } elseif ($v26Link) {
+                        $currentBestUrl = preg_replace('/:\/\/([^\/]+)/', '://v26-luna.douyinvod.com', $v26Link);
+                    } else {
+                        $currentBestUrl = $candidates[0];
                     }
 
-                    // 如果没找到 v3-web 且没处理 v26，暂时存下第一个可用的作为备选
-                    if (!$url && !empty($candidates)) {
-                        $url = $candidates[0];
+                    // 2. 如果全局 URL 尚未设置，使用当前最佳
+                    if (!$url) {
+                        $url = $currentBestUrl;
+                    }
+
+                    // 3. 将所有非主 URL 的链接加入备用
+                    foreach ($candidates as $candidate) {
+                        // 如果是 v26 链接，也进行域名替换，保持一致性
+                        if (strpos($candidate, 'v26-web') !== false) {
+                            $candidate = preg_replace('/:\/\/([^\/]+)/', '://v26-luna.douyinvod.com', $candidate);
+                        }
+
+                        // 排除已选用的主 URL
+                        if ($candidate !== $url && !in_array($candidate, $backup)) {
+                            $backup[] = $candidate;
+                        }
                     }
                 }
 
-                if ($url && $backup) break; // 找到主备链接后停止
+                if ($url && !empty($backup)) break; // 找到主备链接后停止
             }
         }
 
@@ -479,7 +502,10 @@ class DouyinParser
             // 备用
             $urlList = $detail['video']['play_addr']['url_list'] ?? [];
             if (count($urlList) > 1) {
-                $backup = str_replace('playwm', 'play', $urlList[1]);
+                foreach ($urlList as $index => $link) {
+                    if ($index === 0) continue;
+                    $backup[] = str_replace('playwm', 'play', $link);
+                }
             }
         }
 
