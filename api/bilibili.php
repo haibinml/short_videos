@@ -9,7 +9,7 @@
  */
 //这里填写你的B站cookie(不填解析不到1080P以上) 格式为_uuid=XXXXX
 $cookie = '';
-$header = ['Content-type: application/json;charset=UTF-8'];
+$headers = ['Content-type: application/json;charset=UTF-8'];
 $useragent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36';
 header("Access-Control-Allow-Origin: *");
 header('Content-Type: application/json');
@@ -51,7 +51,7 @@ if (empty($bvid)) {
 //获取解析需要的cid值和图片以及标题
 $json1 = bilibili(
     'https://api.bilibili.com/x/web-interface/view?bvid=' . $bvid
-    , $header
+    , $headers
     , $useragent
     , $cookie
 );
@@ -68,7 +68,7 @@ if ($array['code'] == '0') {
     foreach ($array['data']['pages'] as $index => $page) {
         // 请求视频直链API
         $apiUrl = "https://api.bilibili.com/x/player/playurl?otype=json&fnver=0&fnval=3&player=3&qn=112&bvid=" . $bvid . "&cid=" . $page['cid'] . "&platform=html5&high_quality=1";
-        $jsonResponse = bilibili($apiUrl, $header, $useragent, $cookie);
+        $jsonResponse = bilibili($apiUrl, $headers, $useragent, $cookie);
 
         // 解析API返回的JSON数据
         $videoInfo = json_decode($jsonResponse, true);
