@@ -1,7 +1,11 @@
 <?php
 /**
- * DouyinParser - 抖音解析类
- * 整合视频、图文、图集、实况解析
+ * @Author: JH-Ahua
+ * @CreateTime: 2026/2/12 下午9:47
+ * @email: admin@bugpk.com
+ * @blog: www.jiuhunwl.cn
+ * @Api: api.bugpk.com
+ * @tip: 整合视频、图文、图集、实况解析
  */
 
 class DouyinParser
@@ -403,6 +407,7 @@ class DouyinParser
             $videoInfo = $this->extractHighestQualityVideo($detail);
             $result['url'] = $videoInfo['url'];
             $result['video_backup'] = $videoInfo['backup'];
+            $result['video_id'] = $detail['video']['uri'] ?? '';
         }
 
         return $this->output(200, '解析成功', $result);
