@@ -5,7 +5,7 @@
  * @email: admin@bugpk.com
  * @blog: www.jiuhunwl.cn
  * @Api: api.bugpk.com
- * @tip: bilibili去水解析
+ * @tip: bilibili解析-旧版
  */
 //这里填写你的B站cookie(不填解析不到1080P以上) 格式为_uuid=XXXXX
 $cookie = '';
