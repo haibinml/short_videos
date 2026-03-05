@@ -1,7 +1,7 @@
 <?php
 /**
  * @Author: JH-Ahua
- * @CreateTime: 2026/1/27 下午1:56
+ * @CreateTime: 2026/3/5 下午5:18
  * @email: admin@bugpk.com
  * @blog: www.jiuhunwl.cn
  * @Api: api.bugpk.com
@@ -186,7 +186,6 @@ class XiaohongshuParser
 
         // 尝试直接匹配JSON
         $data = $this->extractJson($response, $id);
-
         // 如果 data 为空，尝试使用备用 UA 重试
         if (!$data) {
             $backupUserAgent = 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36 EdgA/143.0.0.0';
@@ -216,7 +215,6 @@ class XiaohongshuParser
             if ($retryResponse) {
                 $data = $this->extractJson($retryResponse, $id);
             }
-
             // 恢复 headers
             $this->headers = $originalHeaders;
         }
@@ -258,7 +256,6 @@ class XiaohongshuParser
             $json = json_decode($jsonStr, true);
 
             if (!$json) return null;
-
             // 尝试获取笔记详情
             // 路径1: note -> noteDetailMap -> id -> note
             $note = $json['note']['noteDetailMap'][$id]['note'] ?? null;
@@ -267,7 +264,6 @@ class XiaohongshuParser
             if (!$note) {
                 $note = $json['noteData']['data']['noteData'] ?? null;
             }
-
             if ($note) {
                 return $this->formatNoteData($note);
             }
@@ -320,8 +316,8 @@ class XiaohongshuParser
             $type = 'image';
         }
 
-        // 优先使用 urlDefault (通常是无水印高清图)，如果不存在则回退到 urlPre
-        $coverUrl = $note['imageList'][0]['urlDefault'] ?? ($note['imageList'][0]['urlPre'] ?? ($note['cover']['url'] ?? ''));
+        // 优先使用 url (xhs.json格式)，其次使用 urlDefault，最后使用 urlPre
+        $coverUrl = $note['imageList'][0]['url'] ?? ($note['imageList'][0]['urlDefault'] ?? ($note['imageList'][0]['urlPre'] ?? ($note['cover']['url'] ?? '')));
 
         // 如果没有找到封面链接，但存在 cover.fileId，则手动拼接
         if (!$coverUrl && isset($note['cover']['fileId'])) {
@@ -333,7 +329,7 @@ class XiaohongshuParser
             'title' => $note['title'] ?? '',
             'desc' => $note['desc'] ?? '',
             'author' => [
-                'name' => $note['user']['nickname'] ?? '',
+                'name' => $note['user']['nickname'] ?? $note['user']['nickName'] ?? '',
                 'id' => $note['user']['userId'] ?? '',
                 'avatar' => $note['user']['avatar'] ?? '',
             ],
@@ -406,8 +402,10 @@ class XiaohongshuParser
         // 处理图片和实况
         if (!empty($note['imageList'])) {
             foreach ($note['imageList'] as $img) {
-                // 普通图片
-                if (isset($img['urlDefault'])) {
+                // 普通图片 - 兼容 xhs.json 格式
+                if (isset($img['url'])) {
+                    $result['images'][] = $this->processImageUrl($img['url']);
+                } elseif (isset($img['urlDefault'])) {
                     $result['images'][] = $this->processImageUrl($img['urlDefault']);
                 } elseif (isset($img['urlPre'])) {
                     $result['images'][] = $this->processImageUrl($img['urlPre']); // 兜底
@@ -425,7 +423,7 @@ class XiaohongshuParser
 
                 if ($liveVideoUrl) {
                     $result['live_photo'][] = [
-                        'image' => $this->processImageUrl($img['urlDefault'] ?? ($img['urlPre'] ?? '')),
+                        'image' => $this->processImageUrl($img['url'] ?? ($img['urlDefault'] ?? ($img['urlPre'] ?? ''))),
                         'video' => $liveVideoUrl
                     ];
                 }
