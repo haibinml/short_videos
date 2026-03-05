@@ -1,7 +1,7 @@
 <?php
 /**
  * @Author: JH-Ahua
- * @CreateTime: 2026/3/5 下午5:18
+ * @CreateTime: 2026/3/5 下午7:53
  * @email: admin@bugpk.com
  * @blog: www.jiuhunwl.cn
  * @Api: api.bugpk.com
@@ -402,28 +402,32 @@ class XiaohongshuParser
         // 处理图片和实况
         if (!empty($note['imageList'])) {
             foreach ($note['imageList'] as $img) {
-                // 普通图片 - 兼容 xhs.json 格式
-                if (isset($img['url'])) {
-                    $result['images'][] = $this->processImageUrl($img['url']);
-                } elseif (isset($img['urlDefault'])) {
-                    $result['images'][] = $this->processImageUrl($img['urlDefault']);
-                } elseif (isset($img['urlPre'])) {
-                    $result['images'][] = $this->processImageUrl($img['urlPre']); // 兜底
+                $imageUrl = null;
+                if (!empty($img['url'])) {
+                    $imageUrl = $img['url'];
+                } elseif (!empty($img['urlDefault'])) {
+                    $imageUrl = $img['urlDefault'];
+                } elseif (!empty($img['urlPre'])) {
+                    $imageUrl = $img['urlPre'];
+                }
+
+                if ($imageUrl) {
+                    $result['images'][] = $this->processImageUrl($imageUrl);
                 }
 
                 // 实况图 (Live Photo)
                 // 实况图通常在 imageList 的 item 中有 stream 字段 (h264等)
-                // 参考 xhslive.php 的逻辑
+                // 或者有 livePhoto: true 标志
                 $liveVideoUrl = null;
-                if (isset($img['stream']['h264'][0]['masterUrl'])) {
+                if (!empty($img['stream']['h264'][0]['masterUrl'])) {
                     $liveVideoUrl = $img['stream']['h264'][0]['masterUrl'];
-                } elseif (isset($img['stream']['h265'][0]['masterUrl'])) {
+                } elseif (!empty($img['stream']['h265'][0]['masterUrl'])) {
                     $liveVideoUrl = $img['stream']['h265'][0]['masterUrl'];
                 }
 
                 if ($liveVideoUrl) {
                     $result['live_photo'][] = [
-                        'image' => $this->processImageUrl($img['url'] ?? ($img['urlDefault'] ?? ($img['urlPre'] ?? ''))),
+                        'image' => $this->processImageUrl($imageUrl ?? ''),
                         'video' => $liveVideoUrl
                     ];
                 }
