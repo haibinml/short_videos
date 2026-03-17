@@ -1,7 +1,7 @@
 <?php
 /**
  * @Author: JH-Ahua
- * @CreateTime: 2026/3/5 下午7:53
+ * @CreateTime: 2026/3/17 下午10:08
  * @email: admin@bugpk.com
  * @blog: www.jiuhunwl.cn
  * @Api: api.bugpk.com
@@ -316,11 +316,29 @@ class XiaohongshuParser
             $type = 'image';
         }
 
-        // 优先使用 url (xhs.json格式)，其次使用 urlDefault，最后使用 urlPre
-        $coverUrl = $note['imageList'][0]['url'] ?? ($note['imageList'][0]['urlDefault'] ?? ($note['imageList'][0]['urlPre'] ?? ($note['cover']['url'] ?? '')));
+        // 提取封面URL
+        $coverUrl = '';
 
-        // 如果没有找到封面链接，但存在 cover.fileId，则手动拼接
-        if (!$coverUrl && isset($note['cover']['fileId'])) {
+        // 对于视频类型，优先从 imageList 获取（视频的封面在 imageList 中）
+        if (!empty($note['imageList'])) {
+            $firstImage = $note['imageList'][0];
+            // 优先使用 urlPre 或 urlDefault（视频类型 url 字段通常为空）
+            $coverUrl = $firstImage['urlPre'] ?? ($firstImage['urlDefault'] ?? ($firstImage['url'] ?? ''));
+        }
+
+        // 如果仍未获取到，尝试从 video.image.thumbnailFileid 获取
+        if (empty($coverUrl) && $type == 'video' && !empty($note['video']['image']['thumbnailFileid'])) {
+            $thumbnailFileid = $note['video']['image']['thumbnailFileid'];
+            $coverUrl = 'https://sns-img-hw.xhscdn.com/' . $thumbnailFileid;
+        }
+
+        // 如果仍未获取到，尝试从 cover 字段获取
+        if (empty($coverUrl) && !empty($note['cover']['url'])) {
+            $coverUrl = $note['cover']['url'];
+        }
+
+        // 如果有 cover.fileId，手动拼接
+        if (empty($coverUrl) && !empty($note['cover']['fileId'])) {
             $coverUrl = 'https://sns-img-hw.xhscdn.com/' . $note['cover']['fileId'] . '?imageView2/2/w/1080/format/jpg';
         }
 
