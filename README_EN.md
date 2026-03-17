@@ -292,6 +292,18 @@ the [LICENSE](https://github.com/jiuhunwl/short_videos/blob/main/LICENSE) file f
 
 ---
 
+## 💖 Sponsorship Support
+
+If you find this project helpful, please consider supporting our work:
+
+<div align="center">
+  <p><strong>TRC20:</strong></p>
+  <p style="font-family: monospace; font-size: 1.1em; word-break: break-all; margin: 0; font-weight: bold;">TMgEhEBSmLjgMkv6vQwLyhkCRQXSDieuSK</p>
+  <p><small>Support TRC20 network, thank you for your support, we will continue to improve the project!</small></p>
+</div>
+
+---
+
 <div align="center">
   <p>⭐ If you find this project useful, please give it a star!</p>
 </div>

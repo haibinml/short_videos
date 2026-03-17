@@ -314,6 +314,18 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
 
 ---
 
+## 💖 赞赏支持
+
+如果您觉得这个项目对您有帮助，欢迎通过以下方式支持我们的工作：
+
+<div align="center">
+  <p><strong>TRC20：</strong></p>
+  <p style="font-family: monospace; font-size: 1.1em; word-break: break-all; margin: 0; font-weight: bold;">TMgEhEBSmLjgMkv6vQwLyhkCRQXSDieuSK</p>
+  <p><small>支持TRC20网络，感谢您的支持，我们会持续改进项目！</small></p>
+</div>
+
+---
+
 <div align="center">
   <p>⭐ 如果这个项目对您有帮助，请给个 Star 支持一下！</p>
 </div>
