@@ -71,6 +71,7 @@ function douyin($url)
             'cover' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['video']['cover']['url_list'][0],
             'images' => !empty($imgurl) ? $imgurl : '当前为短视频解析模式',
             'url' => count($imgurl) > 0 ? '当前为图文解析，图文数量为:' . count($imgurl) . '张图片' : $videoResUrl,
+            'duration' => $videoInfo['loaderData']['video_(id)/page']['videoInfoRes']['item_list'][0]['video']['duration'] ?? null,
             'music' => $music ?? '音乐为视频原声',
         )
     );

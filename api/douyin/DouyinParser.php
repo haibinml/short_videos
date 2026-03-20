@@ -259,6 +259,7 @@ class DouyinParser
             ],
             'cover' => '',
             'url' => null, // 视频链接
+            'duration' => $detail['video']['duration'] ?? null,
             'video_backup' => null,
             'images' => [],
             'live_photo' => [],
