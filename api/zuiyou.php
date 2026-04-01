@@ -203,9 +203,6 @@ if ($responseData === null) {
 }
 if ($responseData === null) {
     $vid = getParamFromUrlWithRedirect($url, 'vid');
-    if (empty($vid)) {
-        $responseData = outputJson(201, '找不到有效的vid参数（包括重定向后）');
-    }
 }
 
 // 调用API获取数据
@@ -236,7 +233,10 @@ if ($responseData === null) {
             $memberData = $postData['member'] ?? [];
             $videosData = $postData['videos'] ?? [];
             $imgsData = $postData['imgs'][0] ?? [];
-
+            $vid = $imgsData['id'];
+            if (empty($vid)) {
+                $responseData = outputJson(201, '找不到有效的vid参数（包括重定向后）');
+            }
             $json = [
                 'author' => $memberData['name'] ?? null,
                 'avatar' => $memberData['avatar_urls']['origin']['urls'][0] ?? null,
