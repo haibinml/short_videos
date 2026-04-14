@@ -79,13 +79,15 @@
 
 ## 重要声明
 
-本项目为开源软件，遵循 MIT 许可证。任何个人或组织均可自由使用、修改和分发本项目的源代码。
+本项目为开源软件，遵循 MIT 许可证。任何个人或组织均可在遵守许可证及当地法律法规的前提下使用、修改和分发本项目源代码。
 
-**然而，我们明确声明：本项目及其任何衍生作品不得用于任何商业或付费项目。**
+本项目仅提供技术研究与接口示例，**代码仅用于学习交流与技术测试，不得用于任何非法用途**。
 
-任何违反此声明的行为都将被视为对本项目许可证的侵犯。
+通过本项目解析出的短视频、图集、音乐及相关素材，其著作权、邻接权及其他合法权益均归原平台及作品权利人（包括但不限于作者）所有。
 
-我们鼓励大家在遵守开源精神和许可证的前提下，积极贡献和分享代码。
+使用者应自行确保已获得必要授权，并在合法、合规、合理范围内使用相关内容；由使用本项目产生的任何直接或间接后果，均由使用者自行承担。
+
+如权利人认为相关内容存在侵权或不当使用，请及时联系处理，我们将积极配合。
 
 ---
 
@@ -170,21 +172,34 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
 
 ```json
 {
-    "code": 200,
-    "msg": "解析成功",
-    "data": {
-        "author": "作者名称",
-      "authorID": "123456789",
-      "title": "视频标题",
-      "desc": "视频描述内容",
-      "avatar": "https://example.com/avatar.jpg",
-      "cover": "https://example.com/cover.jpg",
-      "url": "https://example.com/video.mp4",
-      "imgurl": [
-        "https://example.com/image1.jpg",
-        "https://example.com/image2.jpg"
-      ]
-    }
+  "code": 200,
+  "msg": "解析成功",
+  "data": {
+    "type": "video",
+    "title": "视频标题",
+    "desc": "视频描述内容",
+    "author": {
+      "name": "作者名称",
+      "id": "123456789",
+      "avatar": "https://example.com/avatar.jpg"
+    },
+    "cover": "https://example.com/cover.jpg",
+    "url": "https://example.com/video.mp4",
+    "duration": 15000,
+    "video_backup": [
+      "https://example.com/video_backup_1.mp4",
+      "https://example.com/video_backup_2.mp4"
+    ],
+    "images": [],
+    "live_photo": [],
+    "music": {
+      "title": "背景音乐标题",
+      "author": "背景音乐作者",
+      "url": "https://example.com/music.mp3",
+      "cover": "https://example.com/music_cover.jpg"
+    },
+    "video_id": "7489328058390000000"
+  }
 }
 ```
 
@@ -224,19 +239,30 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
 
 ### 响应格式
 
-| 字段              | 类型  | 描述               |
-|-----------------|-----|------------------|
-| `code`          | 整数  | 响应状态码 (200 = 成功) |
-| `msg`           | 字符串 | 响应消息             |
-| `data`          | 对象  | 视频数据对象           |
-| `data.author`   | 字符串 | 作者名称             |
-| `data.authorID` | 字符串 | 作者唯一标识           |
-| `data.title`    | 字符串 | 视频标题             |
-| `data.desc`     | 字符串 | 视频描述             |
-| `data.avatar`   | 字符串 | 作者头像 URL         |
-| `data.cover`    | 字符串 | 视频封面图 URL        |
-| `data.url`      | 字符串 | 无水印视频直链          |
-| `data.imgurl`   | 数组  | 图集图片 URL 数组      |
+| 字段                   | 类型    | 描述                                          |
+|----------------------|-------|---------------------------------------------|
+| `code`               | 整数    | 业务状态码 (`200` 成功，`400/404/500` 失败)           |
+| `msg`                | 字符串   | 响应消息（便于直接展示错误原因）                            |
+| `data`               | 对象/数组 | 返回数据主体（失败时可能为空数组）                           |
+| `data.type`          | 字符串   | 内容类型：`video` / `image` / `live` / `unknown` |
+| `data.title`         | 字符串   | 标题（通常与 `desc` 一致）                           |
+| `data.desc`          | 字符串   | 描述文本                                        |
+| `data.author`        | 对象    | 作者信息对象                                      |
+| `data.author.name`   | 字符串   | 作者昵称                                        |
+| `data.author.id`     | 字符串   | 作者唯一标识                                      |
+| `data.author.avatar` | 字符串   | 作者头像 URL                                    |
+| `data.cover`         | 字符串   | 封面图 URL                                     |
+| `data.music`         | 对象    | 背景音乐信息对象                                    |
+| `data.music.title`   | 字符串   | 背景音乐标题                                      |
+| `data.music.author`  | 字符串   | 背景音乐作者                                      |
+| `data.music.url`     | 字符串   | 背景音乐直链                                      |
+| `data.music.cover`   | 字符串   | 背景音乐封面 URL                                  |
+| `data.duration`      | 整数/空  | 视频时长（毫秒，可能为 `null`）                         |
+| `data.url`           | 字符串/空 | 视频直链（`type=video` 时返回）                      |
+| `data.video_backup`  | 数组    | 视频备选直链列表（`type=video`）                      |
+| `data.video_id`      | 字符串   | 视频 ID（`type=video`）                         |
+| `data.images`        | 数组    | 图集图片 URL 数组（`type=image/live`）              |
+| `data.live_photo`    | 数组    | 实况图数组（`type=live`，每项包含 `image` 和 `video`）   |
 
 ### 状态码说明
 

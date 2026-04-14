@@ -76,15 +76,20 @@ All responses are returned in structured JSON format for easy integration.
 
 ## Important Notice
 
-This project is open-source software licensed under the MIT License. Any individual or organization is free to use,
-modify, and distribute the source code.
+This project is open-source software under the MIT License. Any individual or organization may use, modify, and
+distribute the source code in compliance with the license terms and applicable laws and regulations.
 
-**However, we explicitly state that this project and any derivative works may NOT be used for commercial or paid
-projects.**
+This project is provided for technical research and API demonstration purposes only. **The code is for learning,
+communication, and technical testing only, and must not be used for any illegal activities.**
 
-Any violation of this statement will be considered an infringement of the project's license terms.
+All rights and interests related to parsed content (including but not limited to videos, image collections, music,
+and other media assets) belong to the original platforms and rightful owners/authors.
 
-We encourage everyone to contribute and share code in accordance with open-source ethics and licensing terms.
+Users are solely responsible for obtaining necessary permissions and ensuring lawful, compliant, and reasonable use
+of any parsed content. Any direct or indirect consequences arising from the use of this project shall be borne by the
+user.
+
+If any rights holder believes there is infringement or improper use, please contact us and we will cooperate promptly.
 
 ---
 
@@ -171,21 +176,34 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
 
 ```json
 {
-    "code": 200,
-    "msg": "Parsing successful",
-    "data": {
-        "author": "Author Name",
-        "authorID": "123456789",
-        "title": "Video Title",
-        "desc": "Video description content",
-        "avatar": "https://example.com/avatar.jpg",
-        "cover": "https://example.com/cover.jpg",
-        "url": "https://example.com/video.mp4",
-        "imgurl": [
-            "https://example.com/image1.jpg",
-            "https://example.com/image2.jpg"
-        ]
-    }
+  "code": 200,
+  "msg": "Parsing successful",
+  "data": {
+    "type": "video",
+    "title": "Video Title",
+    "desc": "Video description content",
+    "author": {
+      "name": "Author Name",
+      "id": "123456789",
+      "avatar": "https://example.com/avatar.jpg"
+    },
+    "cover": "https://example.com/cover.jpg",
+    "url": "https://example.com/video.mp4",
+    "duration": 15000,
+    "video_backup": [
+      "https://example.com/video_backup_1.mp4",
+      "https://example.com/video_backup_2.mp4"
+    ],
+    "images": [],
+    "live_photo": [],
+    "music": {
+      "title": "Music Title",
+      "author": "Music Author",
+      "url": "https://example.com/music.mp3",
+      "cover": "https://example.com/music_cover.jpg"
+    },
+    "video_id": "7489328058390000000"
+  }
 }
 ```
 
@@ -225,19 +243,30 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
 
 ### Response Format
 
-| Field           | Type    | Description                            |
-|-----------------|---------|----------------------------------------|
-| `code`          | Integer | Response status code (200 = success)   |
-| `msg`           | String  | Response message                       |
-| `data`          | Object  | Video data object                      |
-| `data.author`   | String  | Author's name                          |
-| `data.authorID` | String  | Author's unique ID                     |
-| `data.title`    | String  | Video title                            |
-| `data.desc`     | String  | Video description                      |
-| `data.avatar`   | String  | Author's avatar URL                    |
-| `data.cover`    | String  | Video cover image URL                  |
-| `data.url`      | String  | Direct video URL (without watermark)   |
-| `data.imgurl`   | Array   | Array of image URLs (for image albums) |
+| Field                | Type         | Description                                                      |
+|----------------------|--------------|------------------------------------------------------------------|
+| `code`               | Integer      | Business status code (`200` success, `400/404/500` failure)      |
+| `msg`                | String       | Response message (human-readable)                                |
+| `data`               | Object/Array | Payload (may be empty array on failure)                          |
+| `data.type`          | String       | Content type: `video` / `image` / `live` / `unknown`             |
+| `data.title`         | String       | Title (usually same as `desc`)                                   |
+| `data.desc`          | String       | Description text                                                 |
+| `data.author`        | Object       | Author object                                                    |
+| `data.author.name`   | String       | Author nickname                                                  |
+| `data.author.id`     | String       | Author unique identifier                                         |
+| `data.author.avatar` | String       | Author avatar URL                                                |
+| `data.cover`         | String       | Cover image URL                                                  |
+| `data.music`         | Object       | Background music object                                          |
+| `data.music.title`   | String       | Music title                                                      |
+| `data.music.author`  | String       | Music author                                                     |
+| `data.music.url`     | String       | Music direct URL                                                 |
+| `data.music.cover`   | String       | Music cover URL                                                  |
+| `data.duration`      | Integer/Null | Duration in milliseconds (can be `null`)                         |
+| `data.url`           | String/Null  | Main video URL (`type=video`)                                    |
+| `data.video_backup`  | Array        | Backup video URL list (`type=video`)                             |
+| `data.video_id`      | String       | Video ID (`type=video`)                                          |
+| `data.images`        | Array        | Image URL list (`type=image/live`)                               |
+| `data.live_photo`    | Array        | Live-photo list (`type=live`, each item has `image` and `video`) |
 
 ### Status Codes
 
