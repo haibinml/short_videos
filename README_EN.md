@@ -333,6 +333,83 @@ If you find this project helpful, please consider supporting our work:
 
 ---
 
+## 🏆 Sponsor List
+
+Thank you to the following generous supporters for your sponsorship! Your support is our motivation to keep improving!
+
+<div align="center">
+  <table style="border-collapse: collapse; margin: 25px auto; width: 95%; max-width: 900px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); border-radius: 8px; overflow: hidden;">
+    <tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+      <th style="border: none; padding: 16px; text-align: center; color: white; font-weight: 600; font-size: 1.05em;">No.</th>
+      <th style="border: none; padding: 16px; text-align: center; color: white; font-weight: 600; font-size: 1.05em;">Sponsor</th>
+      <th style="border: none; padding: 16px; text-align: center; color: white; font-weight: 600; font-size: 1.05em;">Amount</th>
+      <th style="border: none; padding: 16px; text-align: center; color: white; font-weight: 600; font-size: 1.05em;">Message</th>
+    </tr>
+    <tr style="background-color: #ffffff;">
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; font-weight: 500;">1</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center;">梦安</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #28a745; font-weight: bold; font-size: 1.1em;">¥60.00</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #495057;">赞助用于开通网易云音...</td>
+    </tr>
+    <tr style="background-color: #f8f9fa;">
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; font-weight: 500;">2</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center;">aゞ不忘初心,方得始终</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #dc3545; font-weight: bold; font-size: 1.1em;">¥100.00</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #495057;">支持！</td>
+    </tr>
+    <tr style="background-color: #ffffff;">
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; font-weight: 500;">3</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center;">说你愿意</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #28a745; font-weight: bold; font-size: 1.1em;">¥58.87</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #495057;">大义，无条件支持！...</td>
+    </tr>
+    <tr style="background-color: #f8f9fa;">
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; font-weight: 500;">4</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center;">apivl.yrain.top | 夜雨api</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #ff6b6b; font-weight: bold; font-size: 1.1em;">¥6.66</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #495057;">支持！</td>
+    </tr>
+    <tr style="background-color: #ffffff;">
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; font-weight: 500;">5</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center;">周路遥</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #28a745; font-weight: bold; font-size: 1.1em;">¥3.68</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #495057;">支持！</td>
+    </tr>
+    <tr style="background-color: #f8f9fa;">
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; font-weight: 500;">6</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center;">LinBai</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #dc3545; font-weight: bold; font-size: 1.1em;">¥14.00</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #495057;">支持！</td>
+    </tr>
+    <tr style="background-color: #ffffff;">
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; font-weight: 500;">7</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center;">吃馍</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #28a745; font-weight: bold; font-size: 1.1em;">¥57.20</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #495057;">支持！</td>
+    </tr>
+    <tr style="background-color: #f8f9fa;">
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; font-weight: 500;">8</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center;">Chovy</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #dc3545; font-weight: bold; font-size: 1.1em;">¥5.00</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #495057;">支持！</td>
+    </tr>
+    <tr style="background-color: #ffffff;">
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; font-weight: 500;">9</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center;">芊艺Yqin</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #28a745; font-weight: bold; font-size: 1.1em;">¥18.88</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #495057;">祝BugPK越来越好</td>
+    </tr>
+    <tr style="background-color: #f8f9fa;">
+      <td style="border: none; padding: 14px; text-align: center; font-weight: 500;">10</td>
+      <td style="border: none; padding: 14px; text-align: center;">夜猫子</td>
+      <td style="border: none; padding: 14px; text-align: center; color: #dc3545; font-weight: bold; font-size: 1.1em;">¥9.99</td>
+      <td style="border: none; padding: 14px; text-align: center; color: #495057;">支持一下</td>
+    </tr>
+  </table>
+</div>
+
+---
+
 <div align="center">
   <p>⭐ If you find this project useful, please give it a star!</p>
 </div>
