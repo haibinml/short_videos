@@ -385,6 +385,12 @@ Thank you to the following generous supporters for your sponsorship! Your suppor
 
 ---
 
+## 🌟 Star History
+
+[![Star History Chart](https://api.star-history.com/chart?repos=jiuhunwl/short_videos&type=date&legend=top-left)](https://www.star-history.com/?repos=jiuhunwl%2Fshort_videos&type=date&legend=top-left)
+
+---
+
 <div align="center">
   <p>⭐ If you find this project useful, please give it a star!</p>
 </div>
