@@ -1,12 +1,12 @@
 <?php
 /**
-*@Author: JH-Ahua
-*@CreateTime: 2026/4/30 23:27
-*@email: admin@bugpk.com
-*@blog: www.jiuhunwl.cn
-*@Api: api.bugpk.com
-*@tip: 微博视频去水印解析（非文章视频图文解析）
-*/
+ *@Author: JH-Ahua
+ *@CreateTime: 2026/4/30 23:27
+ *@email: admin@bugpk.com
+ *@blog: www.jiuhunwl.cn
+ *@Api: api.bugpk.com
+ *@tip: 微博视频去水印解析（非文章视频图文解析）
+ */
 @set_time_limit(90);
 @ini_set('max_execution_time', '90');
 header("Access-Control-Allow-Origin: *");
@@ -18,7 +18,6 @@ function main()
 {
     $params = $_SERVER['REQUEST_METHOD'] === 'POST' ? $_POST : $_GET;
     $url = $params['url'] ?? '';
-    $download = $params['download'] ?? 'false';
 
     if (empty($url)) {
         outputError('参数url不能为空', 400);
@@ -88,7 +87,7 @@ function getRedirectUrl($url)
 
 function getRequestHeaders()
 {
-    //微博web端cookie-必填
+    //微博web端cookie
     return [
         'cookie: ',
         'referer: https://weibo.com/',
@@ -125,7 +124,6 @@ function fetchVideoInfo($videoId, $headers)
         $proxyBase = "https://svproxy.168299.xyz/?type=weibo&proxyurl=";
         $videoInfo = $responseData['data']['Component_Play_Playinfo'];
 
-        $qualityUrls = [];
         $backupUrls = [];
         $bestQuality = ['priority' => -1, 'url' => '', 'label' => '', 'quality' => ''];
 
@@ -268,15 +266,6 @@ function sendCurlRequest($url, $postData = '', $headers = [], $isJsonResponse = 
     }
 
     return $response;
-}
-
-function getBaseUrl()
-{
-    $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://');
-    $host = $_SERVER['HTTP_HOST'];
-    $requestUri = $_SERVER['REQUEST_URI'];
-    $path = parse_url($requestUri, PHP_URL_PATH);
-    return $scheme . $host . $path;
 }
 
 function outputSuccess($data)
