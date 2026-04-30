@@ -37,8 +37,6 @@
   </div>
 </div>
 
-<!-- Smooth scrolling and link styles implemented via inline CSS -->
-
 ---
 
 ## 📋 Table of Contents
@@ -56,9 +54,6 @@
 
 ---
 
-<span id="about"></span>
-
-<span id="about"></span>
 ## 🎯 About
 
 This tool is designed to parse video links from various short video platforms and extract detailed information such as:
@@ -71,8 +66,6 @@ This tool is designed to parse video links from various short video platforms an
 All responses are returned in structured JSON format for easy integration.
 
 ---
-
-<span id="important-notice"></span>
 
 ## Important Notice
 
@@ -93,9 +86,6 @@ If any rights holder believes there is infringement or improper use, please cont
 
 ---
 
-<span id="features"></span>
-
-<span id="features"></span>
 ## ✨ Features
 
 - **Multi-Platform Support**: Parse video links from various short video platforms
@@ -107,9 +97,6 @@ If any rights holder believes there is infringement or improper use, please cont
 
 ---
 
-<span id="supported-platforms"></span>
-
-<span id="supported-platforms"></span>
 ## 🌐 Supported Platforms
 
 | Platform                          | API File       | Status   |
@@ -129,9 +116,6 @@ If any rights holder believes there is infringement or improper use, please cont
 
 ---
 
-<span id="installation"></span>
-
-<span id="installation"></span>
 ## 📦 Installation
 
 ### Requirements
@@ -153,9 +137,6 @@ Upload the PHP files to your web server. No installation or configuration needed
 
 ---
 
-<span id="usage"></span>
-
-<span id="usage"></span>
 ## 🚀 Usage
 
 ### Basic Usage
@@ -230,9 +211,6 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
 
 ---
 
-<span id="api-reference"></span>
-
-<span id="api-reference"></span>
 ## 📖 API Reference
 
 ### Request Parameters
@@ -279,9 +257,6 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
 
 ---
 
-<span id="contributing"></span>
-
-<span id="contributing"></span>
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit issues and pull requests.
@@ -296,9 +271,6 @@ Contributions are welcome! Please feel free to submit issues and pull requests.
 
 ---
 
-<span id="license"></span>
-
-<span id="license"></span>
 ## 📄 License
 
 This project is licensed under the MIT License - see
@@ -306,9 +278,6 @@ the [LICENSE](https://github.com/jiuhunwl/short_videos/blob/main/LICENSE) file f
 
 ---
 
-<span id="contact"></span>
-
-<span id="contact"></span>
 ## 📮 Contact
 
 **Author**: JH-Ahua
@@ -400,10 +369,16 @@ Thank you to the following generous supporters for your sponsorship! Your suppor
       <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #495057;">祝BugPK越来越好</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
-      <td style="border: none; padding: 14px; text-align: center; font-weight: 500;">10</td>
-      <td style="border: none; padding: 14px; text-align: center;">夜猫子</td>
-      <td style="border: none; padding: 14px; text-align: center; color: #dc3545; font-weight: bold; font-size: 1.1em;">¥9.99</td>
-      <td style="border: none; padding: 14px; text-align: center; color: #495057;">支持一下</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; font-weight: 500;">10</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center;">夜猫子</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #dc3545; font-weight: bold; font-size: 1.1em;">¥9.99</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #495057;">支持一下</td>
+    </tr>
+    <tr style="background-color: #ffffff;">
+      <td style="border: none; padding: 14px; text-align: center; font-weight: 500;">11</td>
+      <td style="border: none; padding: 14px; text-align: center;">孜恋</td>
+      <td style="border: none; padding: 14px; text-align: center; color: #28a745; font-weight: bold; font-size: 1.1em;">¥8.00</td>
+      <td style="border: none; padding: 14px; text-align: center; color: #495057;">希望可以继续下去</td>
     </tr>
   </table>
 </div>

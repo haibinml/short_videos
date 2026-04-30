@@ -39,8 +39,6 @@
   </div>
 </div>
 
-<!-- 平滑滚动和链接样式已通过内联CSS实现 -->
-
 ---
 
 ## 📋 目录
@@ -59,9 +57,6 @@
 
 ---
 
-<span id="项目简介"></span>
-
-<span id="项目简介"></span>
 ## 🎯 项目简介
 
 本工具用于解析各大短视频平台的视频链接，获取视频的详细信息，包括：
@@ -74,8 +69,6 @@
 所有接口均返回结构化的 JSON 数据，便于快速集成到您的应用中。
 
 ---
-
-<span id="重要声明"></span>
 
 ## 重要声明
 
@@ -91,9 +84,6 @@
 
 ---
 
-<span id="功能特点"></span>
-
-<span id="功能特点"></span>
 ## ✨ 功能特点
 
 - **多平台支持**：支持主流短视频平台的链接解析
@@ -105,9 +95,6 @@
 
 ---
 
-<span id="支持平台"></span>
-
-<span id="支持平台"></span>
 ## 🌐 支持平台
 
 | 平台                 | 接口文件           | 状态   |
@@ -125,9 +112,6 @@
 
 ---
 
-<span id="安装部署"></span>
-
-<span id="安装部署"></span>
 ## 📦 安装部署
 
 ### 环境要求
@@ -149,9 +133,6 @@ cd short_videos
 
 ---
 
-<span id="使用说明"></span>
-
-<span id="使用说明"></span>
 ## 🚀 使用说明
 
 ### 基础用法
@@ -226,9 +207,6 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
 
 ---
 
-<span id="接口文档"></span>
-
-<span id="接口文档"></span>
 ## 📖 接口文档
 
 ### 请求参数
@@ -275,9 +253,6 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
 
 ---
 
-<span id="贡献指南"></span>
-
-<span id="贡献指南"></span>
 ## 🤝 贡献指南
 
 欢迎贡献代码！请随时提交 Issue 和 Pull Request。
@@ -292,18 +267,12 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
 
 ---
 
-<span id="许可证"></span>
-
-<span id="许可证"></span>
 ## 📄 许可证
 
 本项目采用 MIT 许可证 - 详见 [LICENSE](https://github.com/jiuhunwl/short_videos/blob/main/LICENSE) 文件。
 
 ---
 
-<span id="联系方式"></span>
-
-<span id="联系方式"></span>
 ## 📮 联系方式
 
 **作者**：JH-Ahua
@@ -316,9 +285,6 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
 
 ---
 
-<span id="公众号"></span>
-
-<span id="公众号"></span>
 ## 📱 公众号
 
 欢迎关注微信公众号获取更多资讯：
@@ -419,11 +385,18 @@ https://api.bugpk.com/api/douyin.php?url=https://v.douyin.com/xxxx/
       <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #495057;">祝BugPK越来越好</td>
     </tr>
     <tr style="background-color: #f8f9fa;">
-      <td style="border: none; padding: 14px; text-align: center; font-weight: 500;">10</td>
-      <td style="border: none; padding: 14px; text-align: center;">夜猫子</td>
-      <td style="border: none; padding: 14px; text-align: center; color: #dc3545; font-weight: bold; font-size: 1.1em;">¥9.99</td>
-      <td style="border: none; padding: 14px; text-align: center; color: #495057;">支持一下</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; font-weight: 500;">10</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center;">夜猫子</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #dc3545; font-weight: bold; font-size: 1.1em;">¥9.99</td>
+      <td style="border: none; border-bottom: 1px solid #e9ecef; padding: 14px; text-align: center; color: #495057;">支持一下</td>
     </tr>
+    <tr style="background-color: #ffffff;">
+      <td style="border: none; padding: 14px; text-align: center; font-weight: 500;">11</td>
+      <td style="border: none; padding: 14px; text-align: center;">孜恋</td>
+      <td style="border: none; padding: 14px; text-align: center; color: #28a745; font-weight: bold; font-size: 1.1em;">¥8.00</td>
+      <td style="border: none; padding: 14px; text-align: center; color: #495057;">希望可以继续下去</td>
+    </tr>
+
   </table>
 </div>
 
