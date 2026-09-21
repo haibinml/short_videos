@@ -39,14 +39,6 @@
   </div>
 </div>
 
-<div align="center">
-  <p><small>赞助 · Sponsored</small></p>
-  <a href="https://www.zovps.com/" target="_blank" rel="noopener noreferrer">
-    <img src="img/ciyun_ad.png" alt="慈云数据 - 点击访问官网" width="728" />
-  </a>
-  <p><a href="https://www.zovps.com/" target="_blank" rel="noopener noreferrer">慈云数据 | 点击访问官网 →</a></p>
-</div>
-
 ---
 
 ## 📋 目录

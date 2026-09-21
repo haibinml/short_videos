@@ -37,14 +37,6 @@
   </div>
 </div>
 
-<div align="center">
-  <p><small>Sponsored Advertisement</small></p>
-  <a href="https://www.zovps.com/" target="_blank" rel="noopener noreferrer">
-    <img src="img/ciyun_ad.png" alt="Ciyun Data - Visit Official Website" width="728" />
-  </a>
-  <p><a href="https://www.zovps.com/" target="_blank" rel="noopener noreferrer">Ciyun Data | Visit Official Website →</a></p>
-</div>
-
 ---
 
 ## 📋 Table of Contents
