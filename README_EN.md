@@ -37,6 +37,14 @@
   </div>
 </div>
 
+<div align="center">
+  <p><small>Sponsored Advertisement</small></p>
+  <a href="https://www.hncloud.com/" target="_blank" rel="noopener noreferrer">
+    <img src="img/hncloud_ad.jpg" alt="Hncloud - Visit Official Website" width="728" />
+  </a>
+  <p><a href="https://www.hncloud.com/" target="_blank" rel="noopener noreferrer">Hncloud | Visit Official Website →</a></p>
+</div>
+
 ---
 
 ## 📋 Table of Contents
